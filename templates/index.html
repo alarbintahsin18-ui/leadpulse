@@ -6607,6 +6607,7 @@ function openSalesNavOutreachLead(idx) {
  closePricingModal();
  const modal = document.getElementById('paymentCheckoutModal');
  if (modal) modal.classList.remove('hidden');
+ if (typeof updatePaymentQrDisplay === 'function') updatePaymentQrDisplay();
  }
 
  function closePaymentCheckoutModal() {
@@ -8370,16 +8371,32 @@ function togglePaymentQrBox() {
   updatePaymentQrDisplay();
 }
 
-function updatePaymentQrDisplay() {
+function updatePaymentQrDisplay(useStaticFallback = false) {
   const gw = (typeof selectedGateway !== 'undefined' && selectedGateway) ? selectedGateway : 'bkash';
-  const qrUrl = (window.paymentQrUrls && window.paymentQrUrls[gw]) ? window.paymentQrUrls[gw] : '';
+  const pkgId = (typeof selectedPackageId !== 'undefined' && selectedPackageId) ? selectedPackageId : 'growth_2000';
+  const pkgAmounts = { 'starter_500': 500, 'growth_2000': 1800, 'agency_5000': 4000 };
+  const amt = pkgAmounts[pkgId] || 1800;
+
+  let qrUrl = '';
+  if (gw === 'bkash') {
+    qrUrl = useStaticFallback
+      ? '/static/img/bkash_qr.png'
+      : `/static/img/bkash_qr_${amt}.png`;
+  } else {
+    qrUrl = (window.paymentQrUrls && window.paymentQrUrls.nagad) ? window.paymentQrUrls.nagad : '';
+  }
+
   const img = document.getElementById('paymentQrImage');
   const ph = document.getElementById('paymentQrPlaceholder');
   const cap = document.getElementById('paymentQrCaption');
   if (cap) {
-    cap.innerHTML = gw === 'nagad'
-      ? 'Scan with Nagad App &bull; Send Money (01820575753)'
-      : 'Scan with bKash App &bull; Send Money (01820575753)';
+    if (gw === 'bkash') {
+      cap.innerHTML = useStaticFallback
+        ? `Scan with bKash App &bull; Send Money <b>BDT ${amt.toLocaleString()}</b> to 01820575753`
+        : `Scan with bKash App &bull; Auto-fills <b>BDT ${amt.toLocaleString()}</b> &bull; <button type="button" onclick="updatePaymentQrDisplay(true)" class="underline text-pink-600 cursor-pointer">Standard QR</button>`;
+    } else {
+      cap.innerHTML = `Nagad Personal &bull; Send Money <b>BDT ${amt.toLocaleString()}</b> to 01820575753`;
+    }
   }
   if (qrUrl && img && ph) {
     img.src = qrUrl;
