@@ -3,21 +3,21 @@
 <head>
  <meta charset="UTF-8">
  <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <title>ClientHunt AI - B2B Lead Intelligence &amp; Cold Outreach Platform</title>
+ <title>Leadzio AI - B2B Lead Intelligence &amp; Cold Outreach Platform</title>
  <!-- SEO & Social OpenGraph (Facebook / WhatsApp / LinkedIn) Meta Tags -->
- <meta name="description" content="ClientHunt AI is an all-in-one B2B Lead Scraper, Google Maps &amp; LinkedIn Sales Navigator Extractor, Real-Time SMTP Email Verifier, and AI Cold Outreach Automation Platform. Pay instantly via bKash &amp; Nagad.">
- <meta name="keywords" content="B2B Lead Generation, Google Maps Scraper, LinkedIn Sales Navigator Extractor, Email Verifier, Cold Email Automation, ClientHunt AI, Lead Generation Bangladesh">
- <meta name="author" content="ClientHunt AI">
+ <meta name="description" content="Leadzio AI is an all-in-one B2B Lead Scraper, Google Maps &amp; LinkedIn Sales Navigator Extractor, Real-Time SMTP Email Verifier, and AI Cold Outreach Automation Platform. Pay instantly via bKash &amp; Nagad.">
+ <meta name="keywords" content="B2B Lead Generation, Google Maps Scraper, LinkedIn Sales Navigator Extractor, Email Verifier, Cold Email Automation, Leadzio AI, Lead Generation Bangladesh">
+ <meta name="author" content="Leadzio AI">
  <meta name="theme-color" content="#0B0F19">
  <meta property="og:type" content="website">
- <meta property="og:site_name" content="ClientHunt AI">
- <meta property="og:title" content="ClientHunt AI — 1-Click Verified B2B Leads, Email Verifier &amp; AI Cold Outreach">
+ <meta property="og:site_name" content="Leadzio AI">
+ <meta property="og:title" content="Leadzio AI — 1-Click Verified B2B Leads, Email Verifier &amp; AI Cold Outreach">
  <meta property="og:description" content="Stop paying $99/mo for Apollo! Extract verified Google Maps &amp; LinkedIn decision makers with active WhatsApp &amp; zero-bounce corporate emails. Instant bKash &amp; Nagad access.">
  <meta property="og:image" content="/static/img/og_banner.png">
  <meta property="og:image:width" content="1200">
  <meta property="og:image:height" content="1500">
  <meta name="twitter:card" content="summary_large_image">
- <meta name="twitter:title" content="ClientHunt AI — B2B Lead Intelligence &amp; Cold Outreach Engine">
+ <meta name="twitter:title" content="Leadzio AI — B2B Lead Intelligence &amp; Cold Outreach Engine">
  <meta name="twitter:description" content="Extract verified decision makers from Google Maps &amp; LinkedIn with SMTP verification and AI 3-step cold email sequences.">
  <meta name="twitter:image" content="/static/img/og_banner.png">
  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%2306b6d4'/%3E%3Cstop offset='50%25' stop-color='%234f46e5'/%3E%3Cstop offset='100%25' stop-color='%239333ea'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Cpath d='M36 10L16 36h14l-4 18 22-28H34l2-16z' fill='%23fff'/%3E%3C/svg%3E">
@@ -75,6 +75,15 @@
  background: #374151;
  border-radius: 3px;
  }
+ /* Guarantee all full-screen modals cover 100% edge-to-edge with zero top gap */
+ .fixed.inset-0 {
+ margin: 0 !important;
+ top: 0 !important;
+ left: 0 !important;
+ right: 0 !important;
+ bottom: 0 !important;
+ z-index: 100 !important;
+ }
  </style>
 </head>
 <body class="min-h-screen flex flex-col antialiased">
@@ -82,18 +91,30 @@
  <!-- Top Navigation Header -->
  <header class="border-b border-gray-800 bg-gray-900/95 backdrop-blur-md sticky top-0 z-40">
  <div class="w-full max-w-full px-3 sm:px-4 lg:px-6 min-h-[60px] py-1.5 flex items-center justify-between gap-3">
- <!-- Brand Logo -->
- <div class="flex items-center space-x-2 shrink-0 select-none">
- <div id="navbarBrandIcon" class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-tr from-cyan-500 via-indigo-600 to-purple-600 flex items-center justify-center shadow-md shadow-cyan-500/20 shrink-0">
- <i class="fa-solid fa-bolt-lightning text-white text-sm sm:text-base"></i>
+ <!-- Brand Logo (Premium Leadzio Emblem) -->
+ <div class="flex items-center space-x-2.5 shrink-0 select-none">
+ <div id="navbarBrandIcon" class="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 via-cyan-500 to-indigo-600 p-[1.5px] shadow-lg shadow-cyan-500/25 shrink-0">
+   <div class="w-full h-full rounded-[10.5px] bg-[#070b14] flex items-center justify-center">
+     <svg class="w-5 h-5" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+       <defs>
+         <linearGradient id="lzGrad" x1="4" y1="4" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+           <stop offset="0%" stop-color="#34d399"/>
+           <stop offset="50%" stop-color="#22d3ee"/>
+           <stop offset="100%" stop-color="#818cf8"/>
+         </linearGradient>
+       </defs>
+       <path d="M9 6H14.5V21H23.5V26H9V6Z" fill="url(#lzGrad)"/>
+       <circle cx="22.5" cy="9.5" r="3.5" fill="#34d399"/>
+     </svg>
+   </div>
  </div>
- <img id="navbarBrandLogo" src="" class="hidden w-8 h-8 sm:w-9 sm:h-9 object-contain rounded-xl shrink-0" alt="Agency Logo" />
+ <img id="navbarBrandLogo" src="" class="hidden w-9 h-9 object-contain rounded-xl shrink-0" alt="Leadzio Logo" />
  <div>
  <div class="flex items-center space-x-1.5">
- <span id="navbarBrandText" class="font-black text-sm sm:text-base text-white tracking-tight">ClientHunt<span class="text-cyan-400">.ai</span></span>
- <span class="text-[8px] bg-cyan-500/15 text-cyan-300 font-extrabold px-1.5 py-0.5 rounded-full border border-cyan-500/30 uppercase tracking-widest">PRO</span>
+ <span id="navbarBrandText" class="font-black text-base sm:text-lg text-white tracking-tight leading-none">Lead<span class="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">zio</span></span>
+ <span class="text-[9px] bg-emerald-500/15 text-emerald-300 font-extrabold px-1.5 py-0.5 rounded-md border border-emerald-500/30 uppercase tracking-widest">AI</span>
  </div>
- <p class="text-[9px] text-gray-400 font-medium hidden 2xl:block leading-none">B2B Lead Intelligence</p>
+ <p class="text-[9px] text-gray-400 font-medium hidden 2xl:block leading-none mt-0.5 tracking-wide">B2B Growth OS</p>
  </div>
  </div>
 
@@ -1824,7 +1845,7 @@
           <span>0% Gateway Fee &bull; Own Android SMS Auto-Sync</span>
         </div>
         <h3 class="text-base font-extrabold text-white flex items-center gap-2">
-          <span>ClientHunt PaySync — Live Mobile SMS Payment Hub</span>
+          <span>Leadzio PaySync — Live Mobile SMS Payment Hub</span>
         </h3>
         <p class="text-xs text-gray-400">Connect your Android phone directly to your website. Incoming bKash &amp; Nagad SMS auto-verify customer TrxIDs in real time—no UddoktaPay or third-party fees!</p>
       </div>
@@ -1902,14 +1923,14 @@
           <span>Agency Operating System</span>
         </div>
         <h3 class="text-base font-extrabold text-white mt-1">Agency Custom Branding & White-Label Setup</h3>
-        <p class="text-xs text-gray-400">Rebrand ClientHunt AI with your agency's name, custom logo, support contact, and footer.</p>
+        <p class="text-xs text-gray-400">Rebrand Leadzio AI with your agency's name, custom logo, support contact, and footer.</p>
       </div>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
         <label class="block text-xs font-semibold text-gray-300 mb-1">Agency Brand Name</label>
-        <input type="text" id="brandNameInput" placeholder="e.g. ClientHunt AI or Apex Media" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500 font-medium">
+        <input type="text" id="brandNameInput" placeholder="e.g. Leadzio AI or Apex Media" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500 font-medium">
       </div>
       <div>
         <label class="block text-xs font-semibold text-gray-300 mb-1">Agency Logo URL (PNG/SVG, Transparent)</label>
@@ -2396,7 +2417,7 @@
  <span>Premium Plans & Credit Top-Up</span>
  </div>
  <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">
- ClientHunt AI Pricing Plans
+ Leadzio AI Pricing Plans
  </h2>
  <p class="text-xs sm:text-sm text-gray-400 leading-relaxed">
  Free 250 credits from Google sign-in cover Lead Extractor.<br>
@@ -3251,7 +3272,7 @@
       </div>
       <div>
         <h3 class="text-lg font-black text-white">Refer & Earn Free Credits</h3>
-        <p class="text-xs text-gray-400">Invite clients, founders & colleagues to ClientHunt AI</p>
+        <p class="text-xs text-gray-400">Invite clients, founders & colleagues to Leadzio AI</p>
       </div>
     </div>
 
@@ -3368,7 +3389,7 @@
 
  <!-- Footer -->
  <footer class="border-t border-gray-800 py-4 px-6 text-xs text-gray-500 flex flex-col sm:flex-row items-center justify-between gap-2">
- <span id="mainFooterText">ClientHunt AI &bull; B2B Intelligence &amp; Cold Outreach Engine</span>
+ <span id="mainFooterText">Leadzio AI &bull; B2B Intelligence &amp; Cold Outreach Engine</span>
  <div class="flex items-center gap-4">
    <a href="/privacy" class="hover:text-cyan-400 transition">Privacy Policy</a>
    <span class="text-gray-700">&bull;</span>
@@ -6976,7 +6997,7 @@ function openSalesNavOutreachLead(idx) {
  if (d.trial_abused) {
  alert("⚠️ Free trial already claimed on this device. Balance: 0 credits.");
  } else if (d.is_new) {
- alert(`🎉 Welcome to ClientHunt AI!\n250 Free Bonus Credits added to your balance.`);
+ alert(`🎉 Welcome to Leadzio AI!\n250 Free Bonus Credits added to your balance.`);
  }
  }
  } catch (e) {
@@ -8096,7 +8117,13 @@ async function loadAgencyBranding() {
       if (d.brand_name) {
         document.title = `${d.brand_name} - Agency Lead Generation & Cold Outreach Intelligence`;
         const logoTextEl = document.getElementById('navbarBrandText');
-        if (logoTextEl) logoTextEl.innerText = d.brand_name;
+        if (logoTextEl) {
+          if (d.brand_name.toLowerCase().startsWith('leadzio')) {
+            logoTextEl.innerHTML = 'Lead<span class="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">zio</span>';
+          } else {
+            logoTextEl.innerText = d.brand_name;
+          }
+        }
         const brandInput = document.getElementById('brandNameInput');
         if (brandInput) brandInput.value = d.brand_name;
       }
@@ -8164,7 +8191,7 @@ async function saveAgencyBranding() {
   }
 }
 
-// 5. ClientHunt PaySync — Self-Hosted Live Mobile SMS Auto-Payment Controller
+// 5. Leadzio PaySync — Self-Hosted Live Mobile SMS Auto-Payment Controller
 async function loadPaySyncStatus() {
   try {
     const res = await fetch('/api/admin/paysync/status', { headers: getActiveAuthHeaders() });

@@ -1250,7 +1250,7 @@ def export_leads_webhook():
 
     try:
         payload = json.dumps({
-            "source": "ClientHunt AI",
+            "source": "Leadzio AI",
             "timestamp": datetime.now().isoformat(),
             "client_id": cid,
             "total_leads": len(leads),
@@ -1306,10 +1306,10 @@ def get_branding():
     b = load_branding_config()
     return jsonify({
         "success": True,
-        "brand_name": b.get("brand_name", "ClientHunt AI"),
+        "brand_name": b.get("brand_name", "Leadzio AI"),
         "logo_url": b.get("logo_url", ""),
         "support_contact": b.get("support_contact", "01928668568"),
-        "custom_footer": b.get("custom_footer", "ClientHunt AI Intelligence Pro &bull; Agency Operating System")
+        "custom_footer": b.get("custom_footer", "Leadzio AI Intelligence Pro &bull; Agency Operating System")
     })
 
 @app.route("/api/admin/settings/branding", methods=["GET", "POST"])
@@ -1321,7 +1321,7 @@ def admin_branding_settings():
     if request.method == "POST":
         data = request.json or {}
         branding = {
-            "brand_name": data.get("brand_name", "ClientHunt AI").strip(),
+            "brand_name": data.get("brand_name", "Leadzio AI").strip(),
             "logo_url": data.get("logo_url", "").strip(),
             "support_contact": data.get("support_contact", "").strip(),
             "custom_footer": data.get("custom_footer", "").strip()
@@ -1332,10 +1332,10 @@ def admin_branding_settings():
     b = load_branding_config()
     return jsonify({
         "success": True,
-        "brand_name": b.get("brand_name", "ClientHunt AI"),
+        "brand_name": b.get("brand_name", "Leadzio AI"),
         "logo_url": b.get("logo_url", ""),
         "support_contact": b.get("support_contact", "01928668568"),
-        "custom_footer": b.get("custom_footer", "ClientHunt AI Intelligence Pro &bull; Agency Operating System")
+        "custom_footer": b.get("custom_footer", "Leadzio AI Intelligence Pro &bull; Agency Operating System")
     })
 
 @app.route("/api/client/referral-stats", methods=["GET"])
@@ -1448,7 +1448,7 @@ def admin_paysync_simulate():
     sender = (data.get("sender_number") or "01711223344").strip()
     trx_id = (data.get("trx_id") or f"TST{uuid.uuid4().hex[:7].upper()}").strip().upper()
     if gateway == "nagad":
-        raw = f"Money Received. Amount: Tk {amount}.00 Sender: {sender} Ref: ClientHunt TxnID: {trx_id} Balance: Tk 9500.00"
+        raw = f"Money Received. Amount: Tk {amount}.00 Sender: {sender} Ref: Leadzio TxnID: {trx_id} Balance: Tk 9500.00"
         title = "NAGAD"
     else:
         raw = f"You have received Tk {amount}.00 from {sender}. Fee Tk 0.00. Balance Tk 9500.00. TrxID {trx_id}"
@@ -1458,7 +1458,7 @@ def admin_paysync_simulate():
 
 @app.route("/health", methods=["GET"])
 def health_check():
-    return jsonify({"status": "ok", "service": "ClientHunt AI", "timestamp": datetime.now().isoformat()}), 200
+    return jsonify({"status": "ok", "service": "Leadzio AI", "timestamp": datetime.now().isoformat()}), 200
 
 @app.route("/favicon.ico")
 def favicon():
@@ -1466,5 +1466,5 @@ def favicon():
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5055))
-    print(f"[+] ClientHunt AI running at http://localhost:{port}")
+    print(f"[+] Leadzio AI running at http://localhost:{port}")
     app.run(host="0.0.0.0", port=port, debug=False)

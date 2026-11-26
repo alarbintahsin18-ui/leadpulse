@@ -4,15 +4,9 @@
     "env": "live"
   },
   "branding": {
-    "brand_name": "ClientHunt AI",
+    "brand_name": "Leadzio",
     "logo_url": "",
     "support_contact": "01928668568",
-    "custom_footer": "ClientHunt AI &bull; B2B Lead Intelligence &amp; Cold Outreach Platform"
-  },
-  "paysync": {
-    "sync_key": "CHSYNC-EEC69F578E2B2B600F83AA5A",
-    "enabled": true,
-    "last_sync_at": "2026-11-26 22:22:22",
-    "device_name": "Samsung Galaxy Android"
+    "custom_footer": "Leadzio AI &bull; B2B Lead Intelligence &amp; Cold Outreach Platform"
   }
 }
