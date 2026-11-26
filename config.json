@@ -7,6 +7,14 @@
     "brand_name": "Leadzio",
     "logo_url": "",
     "support_contact": "01820575753",
-    "custom_footer": "Leadzio AI &bull; B2B Lead Intelligence &amp; Cold Outreach Platform"
+    "custom_footer": "Leadzio AI &bull; B2B Lead Intelligence &amp; Cold Outreach Platform",
+    "bkash_qr": "/static/img/bkash_qr.png",
+    "nagad_qr": ""
+  },
+  "paysync": {
+    "sync_key": "LEADZIO-PAYSYNC-2026-8842",
+    "enabled": true,
+    "last_sync_at": null,
+    "device_name": "Ready for Phone"
   }
 }
