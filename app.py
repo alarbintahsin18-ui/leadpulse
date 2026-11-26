@@ -1304,13 +1304,55 @@ def save_branding_config(branding_dict):
 @app.route("/api/branding", methods=["GET"])
 def get_branding():
     b = load_branding_config()
+    static_img = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static", "img")
+    bkash_qr = b.get("bkash_qr") or ("/static/img/bkash_qr.png" if os.path.exists(os.path.join(static_img, "bkash_qr.png")) else "")
+    nagad_qr = b.get("nagad_qr") or ("/static/img/nagad_qr.png" if os.path.exists(os.path.join(static_img, "nagad_qr.png")) else "")
     return jsonify({
         "success": True,
         "brand_name": b.get("brand_name", "Leadzio AI"),
         "logo_url": b.get("logo_url", ""),
-        "support_contact": b.get("support_contact", "01928668568"),
-        "custom_footer": b.get("custom_footer", "Leadzio AI Intelligence Pro &bull; Agency Operating System")
+        "support_contact": b.get("support_contact", "01820575753"),
+        "custom_footer": b.get("custom_footer", "Leadzio AI Intelligence Pro &bull; Agency Operating System"),
+        "bkash_qr": bkash_qr,
+        "nagad_qr": nagad_qr
     })
+
+@app.route("/api/admin/paysync/upload-qr", methods=["POST"])
+def admin_upload_payment_qr():
+    """Saves uploaded bKash or Nagad Personal QR Code image cleanly."""
+    import base64 as _b64
+    cid = get_request_client_id()
+    if cid not in ("admin", "superadmin", ""):
+        return jsonify({"success": False, "message": "Unauthorized"}), 403
+    data = request.json or {}
+    gw = (data.get("gateway") or "bkash").strip().lower()
+    if gw not in ("bkash", "nagad"):
+        return jsonify({"success": False, "message": "Invalid gateway."}), 400
+    img_data = (data.get("image_data") or "").strip()
+    if not img_data:
+        return jsonify({"success": False, "message": "QR image data is required."}), 400
+
+    # Save into static/img/{gw}_qr.png (or store data URL in config on Vercel)
+    b = load_branding_config()
+    if img_data.startswith("data:image") and "," in img_data:
+        if not os.environ.get("VERCEL"):
+            try:
+                raw_bytes = _b64.b64decode(img_data.split(",", 1)[1])
+                img_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static", "img")
+                os.makedirs(img_dir, exist_ok=True)
+                out_file = os.path.join(img_dir, f"{gw}_qr.png")
+                with open(out_file, "wb") as f:
+                    f.write(raw_bytes)
+                b[f"{gw}_qr"] = f"/static/img/{gw}_qr.png?v={int(datetime.now().timestamp())}"
+            except Exception as e:
+                return jsonify({"success": False, "message": f"Failed to save QR: {e}"}), 500
+        else:
+            b[f"{gw}_qr"] = img_data
+    else:
+        b[f"{gw}_qr"] = img_data
+
+    save_branding_config(b)
+    return jsonify({"success": True, "message": f"{gw.upper()} Personal QR Code saved!", "qr_url": b[f"{gw}_qr"]})
 
 @app.route("/api/admin/settings/branding", methods=["GET", "POST"])
 def admin_branding_settings():
@@ -1334,7 +1376,7 @@ def admin_branding_settings():
         "success": True,
         "brand_name": b.get("brand_name", "Leadzio AI"),
         "logo_url": b.get("logo_url", ""),
-        "support_contact": b.get("support_contact", "01928668568"),
+        "support_contact": b.get("support_contact", "01820575753"),
         "custom_footer": b.get("custom_footer", "Leadzio AI Intelligence Pro &bull; Agency Operating System")
     })
 

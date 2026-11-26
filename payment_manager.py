@@ -35,14 +35,14 @@ PACKAGES = {
 PAYMENT_METHODS = {
     "bkash": {
         "name": "bKash (Send Money)",
-        "number": "01928668568",
+        "number": "01820575753",
         "type": "Personal (Send Money)",
         "logo_color": "#E2136E",
         "instructions": "Open bKash App or dial *247# and choose 'Send Money' to the number above."
     },
     "nagad": {
         "name": "Nagad (Send Money)",
-        "number": "01928668568",
+        "number": "01820575753",
         "type": "Personal (Send Money)",
         "logo_color": "#F7931E",
         "instructions": "Open Nagad App or dial *167# and choose 'Send Money' to the number above."
