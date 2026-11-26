@@ -1,0 +1,37 @@
+name: Build Leadzio PaySync Android APK
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'Leadzio_PaySync_Android/**'
+      - '.github/workflows/build_paysync_apk.yml'
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: '8.5'
+
+      - name: Build Leadzio PaySync APK
+        working-directory: Leadzio_PaySync_Android
+        run: gradle assembleDebug
+
+      - name: Upload Installable Leadzio_PaySync.apk
+        uses: actions/upload-artifact@v4
+        with:
+          name: Leadzio_PaySync_APK
+          path: Leadzio_PaySync_Android/app/build/outputs/apk/debug/app-debug.apk

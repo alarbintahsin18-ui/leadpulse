@@ -3,6 +3,8 @@ __pycache__/
 *.mp4
 LeadPulse_AI_*.png
 ClientHunt_PaySync_Android/
+Leadzio_PaySync_Android/
+.github/
 create_4k_ad_and_video.py
 render_leadpulse_4k_ad.py
 START_LEADPULSE.bat
