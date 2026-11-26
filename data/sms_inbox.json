@@ -1,0 +1,15 @@
+[
+  {
+    "id": "SMS-95A8EB3A",
+    "gateway": "bkash",
+    "amount": 500.0,
+    "trx_id": "BKA9988776",
+    "sender_number": "01799887766",
+    "raw_sms": "You have received Tk 500.00 from 01799887766. Fee Tk 0.00. Balance Tk 5,500.00. TrxID BKA9988776 at 26/11/2026 22:20",
+    "device_name": "Samsung Galaxy Android",
+    "received_at": "2026-11-26 22:22:22",
+    "claimed": false,
+    "claimed_by": null,
+    "claimed_at": null
+  }
+]

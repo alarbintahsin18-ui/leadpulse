@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.mp4
+LeadPulse_AI_*.png
+ClientHunt_PaySync_Android/
+create_4k_ad_and_video.py
+render_leadpulse_4k_ad.py
+START_LEADPULSE.bat
+TS_Hunter_Extracted_Leads.*
+check_site.py
+.git/

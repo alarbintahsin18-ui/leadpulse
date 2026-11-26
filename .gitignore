@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+*.mp4
+LeadPulse_AI_*.png
+create_4k_ad_and_video.py
+render_leadpulse_4k_ad.py
+TS_Hunter_Extracted_Leads.*
+check_site.py

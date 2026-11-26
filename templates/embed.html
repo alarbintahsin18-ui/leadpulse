@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TS Hunter Intelligence Widget</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0c111d;
+            color: #f3f4f6;
+            margin: 0;
+            padding: 12px;
+        }
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between antialiased">
+
+    <div class="space-y-4">
+        <!-- Widget Header -->
+        <div class="flex items-center justify-between border-b border-gray-800 pb-3">
+            <div class="flex items-center space-x-2.5">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-amber-500 to-orange-600 flex items-center justify-center shadow-md shadow-orange-500/20 text-white font-bold text-sm">
+                    <i class="fa-solid fa-crosshairs"></i>
+                </div>
+                <div>
+                    <h1 class="text-sm font-bold text-white tracking-tight flex items-center gap-1.5">
+                        <span>TS Hunter Intel</span>
+                        <span class="text-[9px] bg-orange-500/20 text-orange-400 font-bold px-1.5 py-0.5 rounded border border-orange-500/30">WIDGET</span>
+                    </h1>
+                </div>
+            </div>
+            <!-- Mode Switcher -->
+            <div class="flex items-center gap-1 bg-gray-900 p-1 rounded-xl border border-gray-800 text-xs">
+                <button onclick="switchEmbedTab('search')" id="tabBtnSearch" class="px-2.5 py-1 rounded-lg bg-orange-500 text-white font-semibold transition">
+                    <i class="fa-solid fa-magnifying-glass mr-1"></i> Search
+                </button>
+                <button onclick="switchEmbedTab('permutator')" id="tabBtnPerm" class="px-2.5 py-1 rounded-lg text-gray-400 hover:text-white transition">
+                    <i class="fa-solid fa-envelope mr-1"></i> Email Permutator
+                </button>
+            </div>
+        </div>
+
+        <!-- TAB 1: Search -->
+        <div id="embedSearchTab" class="space-y-3">
+            <div class="relative flex items-center bg-gray-950 border border-gray-800 focus-within:border-orange-500 rounded-xl p-1.5 transition">
+                <input type="text" id="embedQuery" placeholder="Enter Phone (e.g. 619-752-1955) or Domain..." class="w-full bg-transparent text-xs text-white placeholder-gray-500 px-3 py-1.5 focus:outline-none">
+                <button onclick="executeEmbedSearch()" id="embedSearchBtn" class="bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs px-3.5 py-1.5 rounded-lg transition shrink-0 flex items-center gap-1">
+                    <span>Find</span>
+                    <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                </button>
+            </div>
+
+            <!-- Loading -->
+            <div id="embedLoading" class="hidden text-center py-6 space-y-2">
+                <i class="fa-solid fa-circle-notch fa-spin text-orange-500 text-xl"></i>
+                <div class="text-xs text-gray-400">Scanning corporate databases &amp; registries...</div>
+            </div>
+
+            <!-- Result Box -->
+            <div id="embedResult" class="hidden bg-gray-900 border border-gray-800 rounded-xl p-4 space-y-3">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <div class="text-sm font-extrabold text-white" id="embCompany">Company Name</div>
+                        <div class="text-[11px] text-orange-400 font-mono" id="embDomain">domain.com</div>
+                    </div>
+                    <span class="text-[10px] bg-emerald-500/20 text-emerald-400 font-bold px-2 py-0.5 rounded-full border border-emerald-500/30">Verified</span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                    <div class="bg-gray-950 p-2.5 rounded-lg border border-gray-800">
+                        <span class="text-[10px] text-gray-500 block uppercase font-mono">Decision Maker</span>
+                        <span class="font-bold text-white" id="embPerson">John Doe</span>
+                        <span class="text-[10px] text-orange-300 block" id="embTitle">Founder / CEO</span>
+                    </div>
+                    <div class="bg-gray-950 p-2.5 rounded-lg border border-gray-800">
+                        <span class="text-[10px] text-gray-500 block uppercase font-mono">Direct Phone</span>
+                        <span class="font-bold text-emerald-400 font-mono text-xs" id="embPhone">N/A</span>
+                    </div>
+                </div>
+
+                <div class="bg-gray-950 p-2.5 rounded-lg border border-gray-800 flex items-center justify-between text-xs">
+                    <span class="text-purple-300 font-mono font-bold" id="embEmail">email@domain.com</span>
+                    <a id="embLinkedin" href="#" target="_blank" class="text-cyan-400 hover:underline flex items-center gap-1 text-[11px]">
+                        <i class="fa-brands fa-linkedin"></i> LinkedIn
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: Email Permutator -->
+        <div id="embedPermTab" class="hidden space-y-3">
+            <div class="grid grid-cols-3 gap-2">
+                <input type="text" id="embPermFirst" placeholder="First Name" class="bg-gray-950 border border-gray-800 text-xs text-white p-2 rounded-xl focus:border-orange-500 focus:outline-none">
+                <input type="text" id="embPermLast" placeholder="Last Name" class="bg-gray-950 border border-gray-800 text-xs text-white p-2 rounded-xl focus:border-orange-500 focus:outline-none">
+                <input type="text" id="embPermDom" placeholder="domain.com" class="bg-gray-950 border border-gray-800 text-xs text-white p-2 rounded-xl focus:border-orange-500 focus:outline-none">
+            </div>
+            <button onclick="executeEmbedPerm()" class="w-full bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 text-white font-bold text-xs py-2 rounded-xl transition">
+                Generate Verified Permutations
+            </button>
+
+            <div id="embPermResults" class="space-y-1.5 max-h-56 overflow-y-auto"></div>
+        </div>
+    </div>
+
+    <!-- Widget Footer -->
+    <div class="pt-3 border-t border-gray-800/80 flex items-center justify-between text-[10px] text-gray-500">
+        <span>Powered by <strong>TS Hunter Intelligence Pro</strong></span>
+        <span class="text-emerald-400 flex items-center gap-1"><i class="fa-solid fa-circle text-[6px]"></i> Live API Connected</span>
+    </div>
+
+    <script>
+        function switchEmbedTab(tab) {
+            const searchTab = document.getElementById('embedSearchTab');
+            const permTab = document.getElementById('embedPermTab');
+            const btnSearch = document.getElementById('tabBtnSearch');
+            const btnPerm = document.getElementById('tabBtnPerm');
+
+            if (tab === 'search') {
+                searchTab.classList.remove('hidden');
+                permTab.classList.add('hidden');
+                btnSearch.className = 'px-2.5 py-1 rounded-lg bg-orange-500 text-white font-semibold transition';
+                btnPerm.className = 'px-2.5 py-1 rounded-lg text-gray-400 hover:text-white transition';
+            } else {
+                searchTab.classList.add('hidden');
+                permTab.classList.remove('hidden');
+                btnPerm.className = 'px-2.5 py-1 rounded-lg bg-orange-500 text-white font-semibold transition';
+                btnSearch.className = 'px-2.5 py-1 rounded-lg text-gray-400 hover:text-white transition';
+            }
+        }
+
+        async function executeEmbedSearch() {
+            const q = document.getElementById('embedQuery').value.trim();
+            if (!q) return;
+
+            const load = document.getElementById('embedLoading');
+            const resBox = document.getElementById('embedResult');
+            load.classList.remove('hidden');
+            resBox.classList.add('hidden');
+
+            try {
+                const res = await fetch('/api/search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: q, type: 'auto' })
+                });
+                const d = await res.json();
+                if (d.success) {
+                    const data = d.data;
+                    document.getElementById('embCompany').innerText = data.company_name || 'Extracted Entity';
+                    document.getElementById('embDomain').innerText = data.domain || 'N/A';
+                    document.getElementById('embPerson').innerText = data.contact_name || 'Leadership';
+                    document.getElementById('embTitle').innerText = data.contact_title || 'Executive';
+                    document.getElementById('embPhone').innerText = (data.all_phones && data.all_phones.length > 0) ? data.all_phones[0] : (data.input_phone || 'N/A');
+                    document.getElementById('embEmail').innerText = (data.all_emails && data.all_emails.length > 0) ? data.all_emails[0] : (data.email || 'N/A');
+                    
+                    const lk = document.getElementById('embLinkedin');
+                    if (data.linkedin_url) {
+                        lk.href = data.linkedin_url;
+                        lk.classList.remove('hidden');
+                    } else {
+                        lk.classList.add('hidden');
+                    }
+                    resBox.classList.remove('hidden');
+                } else {
+                    alert("Error: " + d.message);
+                }
+            } catch (e) {
+                alert("Search error: " + e);
+            } finally {
+                load.classList.add('hidden');
+            }
+        }
+
+        async function executeEmbedPerm() {
+            const fn = document.getElementById('embPermFirst').value.trim();
+            const ln = document.getElementById('embPermLast').value.trim();
+            const dom = document.getElementById('embPermDom').value.trim();
+            if (!dom) {
+                alert("Please enter a domain");
+                return;
+            }
+
+            const c = document.getElementById('embPermResults');
+            c.innerHTML = '<div class="text-xs text-gray-400 text-center py-2">Calculating patterns &amp; DNS MX...</div>';
+
+            try {
+                const res = await fetch('/api/email-permutations', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ first_name: fn, last_name: ln, domain: dom })
+                });
+                const d = await res.json();
+                if (d.success && d.data.length > 0) {
+                    c.innerHTML = d.data.map(p => `
+                        <div class="flex items-center justify-between p-2 rounded-lg bg-gray-950 border border-gray-800 text-xs">
+                            <span class="font-mono text-purple-300 font-semibold">${p.email}</span>
+                            <span class="text-[10px] text-emerald-400 font-mono">${p.status}</span>
+                        </div>
+                    `).join('');
+                }
+            } catch (e) {
+                c.innerHTML = '<div class="text-xs text-red-400">Failed to generate permutations</div>';
+            }
+        }
+    </script>
+</body>
+</html>
