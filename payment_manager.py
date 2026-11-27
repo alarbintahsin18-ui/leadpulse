@@ -1,19 +1,83 @@
 import os
 import json
 import uuid
+import time
+import urllib.request
 from datetime import datetime
 
 PAYMENTS_FILE = "/tmp/clienthunt_data/payments.json" if os.environ.get("VERCEL") else os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "payments.json")
-_CONFIG_FILE = "/tmp/config.json" if os.environ.get("VERCEL") else os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.json")
+_BUNDLED_CONFIG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.json")
+_CONFIG_FILE = "/tmp/config.json" if os.environ.get("VERCEL") else _BUNDLED_CONFIG_FILE
 
-def _load_site_settings():
+# Optional permanent cloud persistence for Vercel serverless (Firebase Realtime Database REST URL)
+# e.g. FIREBASE_DB_URL=https://leadzio-default-rtdb.firebaseio.com
+_CLOUD_CACHE = {"data": None, "ts": 0.0}
+
+def get_firebase_db_url():
+    return (os.environ.get("FIREBASE_DB_URL") or "").strip().rstrip("/")
+
+def has_cloud_db():
+    return bool(get_firebase_db_url())
+
+def _read_local_config():
+    for path in ([_CONFIG_FILE, _BUNDLED_CONFIG_FILE] if _CONFIG_FILE != _BUNDLED_CONFIG_FILE else [_CONFIG_FILE]):
+        try:
+            if os.path.exists(path):
+                with open(path, "r", encoding="utf-8") as f:
+                    return json.load(f)
+        except Exception:
+            pass
+    return {}
+
+def _load_site_settings(force_refresh=False):
+    db_url = get_firebase_db_url()
+    if db_url:
+        now = time.time()
+        if not force_refresh and _CLOUD_CACHE["data"] is not None and (now - _CLOUD_CACHE["ts"] < 5.0):
+            return dict(_CLOUD_CACHE["data"])
+        try:
+            req = urllib.request.Request(f"{db_url}/leadzio_site_settings.json", method="GET")
+            with urllib.request.urlopen(req, timeout=3) as resp:
+                raw = resp.read().decode("utf-8")
+                parsed = json.loads(raw) if raw else None
+                if isinstance(parsed, dict):
+                    _CLOUD_CACHE["data"] = parsed
+                    _CLOUD_CACHE["ts"] = now
+                    return dict(parsed)
+        except Exception:
+            pass
+    return _read_local_config().get("site_settings", {})
+
+def _save_site_settings(site_settings_dict):
+    # 1. Always write to local / /tmp config.json
+    cfg = _read_local_config()
+    cfg["site_settings"] = site_settings_dict
     try:
-        if os.path.exists(_CONFIG_FILE):
-            with open(_CONFIG_FILE, "r", encoding="utf-8") as f:
-                return json.load(f).get("site_settings", {})
+        with open(_CONFIG_FILE, "w", encoding="utf-8") as f:
+            json.dump(cfg, f, indent=2)
     except Exception:
         pass
-    return {}
+
+    # 2. If Firebase Realtime Database URL is configured, sync permanently to cloud
+    db_url = get_firebase_db_url()
+    if db_url:
+        try:
+            payload = json.dumps(site_settings_dict).encode("utf-8")
+            req = urllib.request.Request(
+                f"{db_url}/leadzio_site_settings.json",
+                data=payload,
+                headers={"Content-Type": "application/json"},
+                method="PUT"
+            )
+            with urllib.request.urlopen(req, timeout=4) as resp:
+                if resp.status == 200:
+                    _CLOUD_CACHE["data"] = dict(site_settings_dict)
+                    _CLOUD_CACHE["ts"] = time.time()
+                    return True
+        except Exception as e:
+            print("[!] Firebase RTDB save error:", e)
+            return False
+    return True
 
 def get_live_packages():
     """Returns packages merged with live Admin Panel overrides from config.json."""

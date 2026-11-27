@@ -1522,19 +1522,12 @@ def admin_paysync_simulate():
 @app.route("/api/site-config", methods=["GET"])
 def get_public_site_config():
     """Public live configuration driven 100% by Super Admin Panel."""
-    cfg = {}
-    if os.path.exists(CONFIG_PATH):
-        try:
-            with open(CONFIG_PATH, "r", encoding="utf-8") as f:
-                cfg = json.load(f)
-        except Exception:
-            cfg = {}
-    st = cfg.get("site_settings", {})
+    st = payment_manager._load_site_settings(force_refresh=True)
     cid = get_request_client_id()
     is_first_time_buyer = True
     if cid and cid not in ("admin", "superadmin"):
         is_first_time_buyer = not client_manager.is_client_paid(cid)
-    return jsonify({
+    resp = jsonify({
         "success": True,
         "packages": payment_manager.get_live_packages(),
         "methods": payment_manager.get_live_payment_methods(),
@@ -1553,6 +1546,8 @@ def get_public_site_config():
         "lock_outreach": bool(st.get("lock_outreach", True)),
         "announcement_text": st.get("announcement_text", "")
     })
+    resp.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    return resp
 
 @app.route("/api/admin/settings/all", methods=["GET", "POST"])
 def admin_all_settings():
@@ -1561,17 +1556,10 @@ def admin_all_settings():
     if cid not in ("admin", "superadmin", ""):
         return jsonify({"success": False, "message": "Unauthorized"}), 403
 
-    cfg = {}
-    if os.path.exists(CONFIG_PATH):
-        try:
-            with open(CONFIG_PATH, "r", encoding="utf-8") as f:
-                cfg = json.load(f)
-        except Exception:
-            cfg = {}
+    st = payment_manager._load_site_settings(force_refresh=True)
 
     if request.method == "POST":
         data = request.json or {}
-        st = cfg.get("site_settings", {})
 
         # 1. Dynamic Pricing Packages
         if isinstance(data.get("packages"), dict):
@@ -1613,9 +1601,7 @@ def admin_all_settings():
                 "expires_at": str(po.get("expires_at", "")).strip()
             }
 
-        cfg["site_settings"] = st
-        with open(CONFIG_PATH, "w", encoding="utf-8") as f:
-            json.dump(cfg, f, indent=2)
+        payment_manager._save_site_settings(st)
 
         # 5. Optional Master Admin Passcode Change
         new_pass = (data.get("new_admin_passcode") or "").strip()
@@ -1626,12 +1612,17 @@ def admin_all_settings():
             client_manager.save_clients_data(cdata)
             pass_msg = " Admin passcode also updated!"
 
-        return jsonify({"success": True, "message": f"All Super Admin settings saved successfully!{pass_msg}"})
+        return jsonify({
+            "success": True,
+            "cloud_synced": payment_manager.has_cloud_db(),
+            "message": f"All Super Admin settings saved successfully!{pass_msg}"
+        })
 
     # GET current full settings
-    st = cfg.get("site_settings", {})
-    return jsonify({
+    resp = jsonify({
         "success": True,
+        "cloud_synced": payment_manager.has_cloud_db(),
+        "is_vercel": bool(os.environ.get("VERCEL")),
         "packages": payment_manager.get_live_packages(),
         "promo_offer": payment_manager.get_live_offer(),
         "bkash_number": st.get("bkash_number", "01820575753"),
@@ -1649,6 +1640,8 @@ def admin_all_settings():
         "lock_outreach": bool(st.get("lock_outreach", True)),
         "announcement_text": st.get("announcement_text", "")
     })
+    resp.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    return resp
 
 @app.route("/health", methods=["GET"])
 def health_check():

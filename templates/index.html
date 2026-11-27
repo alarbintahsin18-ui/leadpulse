@@ -2000,10 +2000,16 @@
         <h3 class="text-base font-extrabold text-white mt-1">Pricing Packages, Payment Numbers, Feature Locks &amp; Security</h3>
         <p class="text-xs text-gray-400">Edit package prices, credits, bKash/Nagad numbers, free trial limits, referral bonuses, site announcement, and admin passcode in real time.</p>
       </div>
-      <button type="button" onclick="saveAdminMasterSettings()" id="btnSaveMasterSettings" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black font-black text-xs shadow-lg shadow-amber-500/25 transition flex items-center gap-2 cursor-pointer shrink-0">
-        <i class="fa-solid fa-check-double"></i>
-        <span>Save All Master Settings</span>
-      </button>
+      <div class="flex items-center gap-2 shrink-0">
+        <button type="button" onclick="openPricingModal()" class="px-3.5 py-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 border border-gray-700 text-cyan-300 font-bold text-xs transition flex items-center gap-1.5 cursor-pointer">
+          <i class="fa-solid fa-eye"></i>
+          <span>Preview Pricing</span>
+        </button>
+        <button type="button" onclick="saveAdminMasterSettings()" id="btnSaveMasterSettings" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black font-black text-xs shadow-lg shadow-amber-500/25 transition flex items-center gap-2 cursor-pointer">
+          <i class="fa-solid fa-check-double"></i>
+          <span>Save All Master Settings</span>
+        </button>
+      </div>
     </div>
 
     <!-- 1. Dynamic Pricing & Credits Control -->
@@ -6844,7 +6850,10 @@ function openSalesNavOutreachLead(idx) {
  let selectedPackageId = 'growth_2000';
  let selectedGateway = 'bkash';
 
- function openPricingModal() {
+ async function openPricingModal() {
+ if (typeof loadSiteConfig === 'function') {
+   try { await loadSiteConfig(); } catch(e) {}
+ }
  const modal = document.getElementById('publicPricingModal');
  if (modal) modal.classList.remove('hidden');
  }
@@ -8895,12 +8904,16 @@ function _updatePricingCardDom(cardId, pid, pkg) {
       ? `Claim ${name} (BDT ${price.toLocaleString()})`
       : `Select ${name} (BDT ${price.toLocaleString()})`;
   }
+  const firstBullet = card.querySelector('.border-t span');
+  if (firstBullet && credits > 0) {
+    firstBullet.innerText = `${credits.toLocaleString()} Verified B2B Leads`;
+  }
 }
 
 async function loadSiteConfig() {
   try {
     const hdrs = (typeof getActiveAuthHeaders === 'function') ? getActiveAuthHeaders() : {};
-    const res = await fetch('/api/site-config', { headers: hdrs });
+    const res = await fetch('/api/site-config?_t=' + Date.now(), { headers: hdrs, cache: 'no-store' });
     const d = await res.json();
     if (!d.success) return;
     window.liveSiteConfig = d;
@@ -8975,7 +8988,7 @@ async function loadSiteConfig() {
 
 async function loadAdminMasterSettings() {
   try {
-    const res = await fetch('/api/admin/settings/all', { headers: getActiveAuthHeaders() });
+    const res = await fetch('/api/admin/settings/all?_t=' + Date.now(), { headers: getActiveAuthHeaders(), cache: 'no-store' });
     if (!res.ok) return;
     const d = await res.json();
     if (!d.success) return;
