@@ -34,6 +34,91 @@ def get_live_packages():
         merged[pid] = p
     return merged
 
+def get_live_offer():
+    """Returns live Promotional / First-Time Offer configuration from config.json."""
+    settings = _load_site_settings()
+    raw = settings.get("promo_offer", {}) if isinstance(settings.get("promo_offer"), dict) else {}
+    enabled = bool(raw.get("enabled", False))
+    expires_at = str(raw.get("expires_at", "")).strip()
+    expired = False
+    if enabled and expires_at:
+        try:
+            exp_dt = datetime.fromisoformat(expires_at.replace("Z", "+00:00").split("+")[0])
+            if datetime.now() > exp_dt:
+                expired = True
+        except Exception:
+            pass
+    return {
+        "enabled": enabled,
+        "is_active": bool(enabled and not expired),
+        "expired": expired,
+        "title": str(raw.get("title", "First-Time Launch Offer")).strip() or "Special Offer",
+        "target_pkg": str(raw.get("target_pkg", "starter_500")).strip() or "starter_500",
+        "discount_type": str(raw.get("discount_type", "custom_price")).strip() or "custom_price",
+        "discount_value": max(0, int(raw.get("discount_value", 250) or 0)),
+        "first_time_only": bool(raw.get("first_time_only", True)),
+        "promo_code": str(raw.get("promo_code", "")).strip().upper(),
+        "expires_at": expires_at
+    }
+
+def calculate_package_price(package_id, is_first_time_buyer=True, promo_code=""):
+    """Computes final BDT price for a package considering any active Admin promotional offer."""
+    live_pkgs = get_live_packages()
+    pkg = live_pkgs.get(package_id) or live_pkgs["starter_500"]
+    orig_price = max(1, int(pkg.get("price_bdt", 500)))
+    offer = get_live_offer()
+
+    result = {
+        "package_id": pkg["id"],
+        "original_price": orig_price,
+        "final_price": orig_price,
+        "discount_amount": 0,
+        "discount_pct": 0,
+        "offer_applied": False,
+        "offer_title": "",
+        "promo_code_used": ""
+    }
+
+    if not offer.get("is_active"):
+        return result
+
+    target = offer.get("target_pkg", "all")
+    if target != "all" and target != pkg["id"]:
+        return result
+
+    if offer.get("first_time_only") and not is_first_time_buyer:
+        return result
+
+    req_code = offer.get("promo_code", "")
+    entered_code = (promo_code or "").strip().upper()
+    if req_code and entered_code != req_code:
+        return result
+
+    dtype = offer.get("discount_type", "custom_price")
+    dval = offer.get("discount_value", 0)
+    if dtype == "custom_price":
+        final_price = max(1, min(orig_price, dval)) if dval > 0 else orig_price
+    elif dtype == "percent":
+        pct = max(0, min(95, dval))
+        final_price = max(1, int(round(orig_price * (100 - pct) / 100.0)))
+    elif dtype == "fixed":
+        final_price = max(1, orig_price - dval)
+    else:
+        final_price = orig_price
+
+    if final_price < orig_price:
+        disc_amt = orig_price - final_price
+        disc_pct = int(round((disc_amt / orig_price) * 100))
+        result.update({
+            "final_price": final_price,
+            "discount_amount": disc_amt,
+            "discount_pct": disc_pct,
+            "offer_applied": True,
+            "offer_title": offer.get("title", "Special Offer"),
+            "promo_code_used": req_code if req_code else ""
+        })
+    return result
+
 def get_live_payment_methods():
     """Returns payment methods merged with live Admin Panel numbers."""
     settings = _load_site_settings()
@@ -109,16 +194,19 @@ def save_payments(payments):
     with open(PAYMENTS_FILE, "w", encoding="utf-8") as f:
         json.dump(payments, f, indent=2, ensure_ascii=False)
 
-def submit_payment(client_id, client_name, client_email, gateway, sender_number, trx_id, package_id):
+def submit_payment(client_id, client_name, client_email, gateway, sender_number, trx_id, package_id, is_first_time_buyer=True, promo_code=""):
     """
     Submits a payment and verifies it in real time against live incoming bKash/Nagad SMS
-    synced from the owner's Android phone via ClientHunt PaySync.
+    synced from the owner's Android phone via Leadzio PaySync.
     """
     import sms_payment_sync
 
     payments = load_payments()
     live_pkgs = get_live_packages()
     pkg = live_pkgs.get(package_id) or live_pkgs["starter_500"]
+    pricing = calculate_package_price(pkg["id"], is_first_time_buyer=is_first_time_buyer, promo_code=promo_code)
+    expected_bdt = pricing["final_price"]
+
     trx_clean = trx_id.strip().upper()
     sender_clean = sender_number.strip()
     
@@ -127,10 +215,10 @@ def submit_payment(client_id, client_name, client_email, gateway, sender_number,
         if p.get("trx_id") == trx_clean and p.get("status") == "approved":
             return False, "This Transaction ID has already been used and approved.", None
 
-    # Live Mobile SMS Verification via ClientHunt PaySync
+    # Live Mobile SMS Verification via Leadzio PaySync
     matched, code, sync_msg, sms_rec = sms_payment_sync.verify_and_claim_sms(
         trx_id=trx_clean,
-        expected_amount=pkg["price_bdt"],
+        expected_amount=expected_bdt,
         sender_number=sender_clean,
         gateway=gateway
     )
@@ -152,7 +240,10 @@ def submit_payment(client_id, client_name, client_email, gateway, sender_number,
         "trx_id": trx_clean,
         "package_id": pkg["id"],
         "package_name": pkg["name"],
-        "amount_bdt": pkg["price_bdt"],
+        "amount_bdt": expected_bdt,
+        "original_amount_bdt": pricing["original_price"],
+        "discount_amount_bdt": pricing["discount_amount"],
+        "offer_applied": pricing["offer_title"] if pricing["offer_applied"] else "",
         "credits": pkg["credits"],
         "status": status,
         "verification_method": "Auto SMS Sync" if matched else "Waiting for SMS / Admin",

@@ -2137,6 +2137,76 @@
         </div>
       </div>
     </div>
+
+    <!-- 5. Promotional Offer & First-Time Deal Launcher -->
+    <div class="bg-gradient-to-br from-pink-950/30 via-gray-950 to-amber-950/20 border border-pink-500/40 rounded-2xl p-4 sm:p-5 space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-pink-500/20 pb-3">
+        <div>
+          <div class="flex items-center gap-2">
+            <h4 class="text-sm font-black text-white flex items-center gap-2">
+              <i class="fa-solid fa-fire text-amber-400"></i>
+              <span>Promotional Offer &amp; First-Time Deal Launcher</span>
+            </h4>
+            <span id="admOfferLiveBadge" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-gray-800 text-gray-400 border border-gray-700">OFF</span>
+          </div>
+          <p class="text-[11px] text-gray-400 mt-0.5">Launch instant flash deals (e.g., 1st-time Starter Plan BDT 500 &rarr; BDT 250) with crossed-out prices &amp; auto SMS verification</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button type="button" onclick="applyOfferPresetFirstTime250()" class="px-3 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-amber-300 text-[11px] font-bold transition cursor-pointer">
+            <i class="fa-solid fa-bolt mr-1"></i> Preset: 1st-Time 500 &rarr; 250 BDT
+          </button>
+          <label class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gray-900 border border-pink-500/40 cursor-pointer">
+            <input type="checkbox" id="admOfferEnabled" onchange="updateAdminOfferBadgePreview()" class="w-4 h-4 accent-pink-500 rounded">
+            <span class="text-xs font-extrabold text-pink-300">Enable Offer</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div>
+          <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Offer Title / Badge</label>
+          <input type="text" id="admOfferTitle" value="First-Time Launch Offer" placeholder="e.g. First-Time 50% OFF Deal" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white focus:border-pink-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Target Package</label>
+          <select id="admOfferTargetPkg" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white focus:border-pink-500 focus:outline-none">
+            <option value="starter_500">Starter Plan Only</option>
+            <option value="growth_2000">Growth Pro Only</option>
+            <option value="agency_5000">Agency Pro Only</option>
+            <option value="all">All Packages</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Discount Mode</label>
+          <select id="admOfferDiscountType" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white focus:border-pink-500 focus:outline-none">
+            <option value="custom_price">Exact Offer Price (BDT)</option>
+            <option value="percent">Percentage Off (%)</option>
+            <option value="fixed">Flat Discount (BDT Off)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold text-amber-400 uppercase mb-1">Offer Price / Value</label>
+          <input type="number" id="admOfferDiscountValue" value="250" min="1" placeholder="e.g. 250" class="w-full bg-gray-900 border border-amber-500/40 rounded-xl px-3 py-2 text-xs text-amber-300 font-mono font-black focus:border-amber-400 focus:outline-none">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+        <div>
+          <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Promo Code (Leave blank = Auto-Apply)</label>
+          <input type="text" id="admOfferPromoCode" placeholder="Optional e.g. FIRST50" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-xs text-cyan-300 font-mono uppercase focus:border-cyan-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Offer Expiry Date &amp; Time (Optional)</label>
+          <input type="datetime-local" id="admOfferExpiresAt" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:border-pink-500 focus:outline-none">
+        </div>
+        <div class="bg-gray-900/80 border border-gray-800 rounded-xl px-3 py-2.5">
+          <label class="flex items-center gap-2 text-xs text-gray-200 cursor-pointer">
+            <input type="checkbox" id="admOfferFirstTimeOnly" checked class="w-4 h-4 accent-emerald-500 rounded">
+            <span><b>First-Time Buyers Only</b> (1st purchase)</span>
+          </label>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- TABLE 1: bKash & Nagad Payments Approval Hub -->
@@ -2610,6 +2680,15 @@
  </p>
  </div>
 
+ <!-- Live Promotional Offer Banner (Admin Driven) -->
+ <div id="pricingOfferBanner" class="hidden bg-gradient-to-r from-pink-600/20 via-amber-500/20 to-emerald-500/20 border border-amber-400/50 rounded-2xl px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-2 shadow-lg">
+   <div class="flex items-center gap-2.5 text-center sm:text-left">
+     <span class="px-2.5 py-1 rounded-full bg-amber-500 text-black text-[10px] font-black uppercase tracking-wider shrink-0">SPECIAL OFFER</span>
+     <span id="pricingOfferBannerText" class="text-xs sm:text-sm font-bold text-white"></span>
+   </div>
+   <span id="pricingOfferBannerMeta" class="text-[11px] font-mono font-bold text-amber-300 shrink-0"></span>
+ </div>
+
  <!-- 3 Balanced Pricing Cards -->
  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
  <!-- 1. Starter Pack -->
@@ -2772,13 +2851,23 @@
        <!-- Compact Plan Summary Pill -->
        <div class="bg-gray-900/90 border border-gray-800 rounded-2xl px-4 py-3 flex items-center justify-between">
          <div class="min-w-0 pr-2">
-           <div class="text-xs font-bold text-white truncate" id="checkoutSelectedPkgName">Growth Pro (2,000 Credits)</div>
+           <div class="flex items-center gap-1.5">
+             <div class="text-xs font-bold text-white truncate" id="checkoutSelectedPkgName">Growth Pro (2,000 Credits)</div>
+             <span id="checkoutOfferBadge" class="hidden text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-amber-500 text-black shrink-0">OFFER</span>
+           </div>
            <div class="text-[11px] text-gray-400 truncate" id="checkoutSelectedPkgDesc">Email Verifier + Cold Outreach Unlocked</div>
          </div>
          <div class="text-right shrink-0 pl-3 border-l border-gray-800">
+           <div id="checkoutOriginalPrice" class="hidden text-[11px] text-gray-500 line-through font-mono">BDT 500</div>
            <div class="text-lg font-black text-emerald-400 font-mono leading-tight" id="checkoutSelectedPkgPrice">BDT 1,800</div>
            <div class="text-[10px] text-gray-500 font-medium">One-time payment</div>
          </div>
+       </div>
+
+       <!-- Optional Promo Code Box (Shown when Admin sets a Promo Code) -->
+       <div id="checkoutPromoRow" class="hidden flex items-center gap-2">
+         <input type="text" id="checkoutPromoInput" placeholder="Enter Promo Code (e.g. FIRST50)" class="flex-1 bg-gray-900 border border-amber-500/40 focus:border-amber-400 text-amber-300 px-3 py-2 rounded-xl text-xs font-mono uppercase focus:outline-none" />
+         <button type="button" onclick="applyCheckoutPromoCode()" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-black text-xs transition cursor-pointer shrink-0">Apply</button>
        </div>
 
        <!-- 2-Column Clean Gateway Selector Cards -->
@@ -6770,10 +6859,12 @@ function openSalesNavOutreachLead(idx) {
  const p = PLAN_DETAILS[pkgId] || PLAN_DETAILS['growth_2000'];
  const nameEl = document.getElementById('checkoutSelectedPkgName');
  const descEl = document.getElementById('checkoutSelectedPkgDesc');
- const priceEl = document.getElementById('checkoutSelectedPkgPrice');
  if (nameEl) nameEl.innerText = p.name;
  if (descEl) descEl.innerText = p.desc;
- if (priceEl) priceEl.innerText = p.price;
+
+ const promoInput = document.getElementById('checkoutPromoInput');
+ if (promoInput) promoInput.value = '';
+ if (typeof refreshCheckoutOfferDisplay === 'function') refreshCheckoutOfferDisplay();
 
  // Close pricing plans and open dedicated checkout popup
  closePricingModal();
@@ -6954,20 +7045,21 @@ function openSalesNavOutreachLead(idx) {
 
  async function submitPaymentVerification() {
  if (!activeClientId) {
- showToast("Payment Complete Users Google Sign-In ।", "info");
+ showToast("Please sign in with Google before submitting payment.", "info");
  openAuthModal('google');
  return;
  }
 
  const senderNum = document.getElementById('paySenderNumber').value.trim();
  const trxId = document.getElementById('payTrxId').value.trim();
+ const promoCode = (document.getElementById('checkoutPromoInput')?.value || '').trim().toUpperCase();
 
  if (!senderNum || senderNum.length < 11) {
- showToast(" Valid 11 Sender Number Provide।", "error");
+ showToast("Please enter a valid 11-digit sender phone number.", "error");
  return;
  }
  if (!trxId || trxId.length < 6) {
- showToast(" bKash/Nagad Received Transaction ID (TrxID) Provide।", "error");
+ showToast("Please enter a valid Transaction ID (TrxID).", "error");
  return;
  }
 
@@ -6987,7 +7079,8 @@ function openSalesNavOutreachLead(idx) {
  gateway: selectedGateway,
  sender_number: senderNum,
  trx_id: trxId,
- package_id: selectedPackageId
+ package_id: selectedPackageId,
+ promo_code: promoCode
  })
  });
  const d = await res.json();
@@ -8564,9 +8657,11 @@ function updatePaymentQrDisplay(useStaticFallback = false) {
   const gw = (typeof selectedGateway !== 'undefined' && selectedGateway) ? selectedGateway : 'bkash';
   const pkgId = (typeof selectedPackageId !== 'undefined' && selectedPackageId) ? selectedPackageId : 'growth_2000';
   const cfg = window.liveSiteConfig || {};
-  const livePkgs = cfg.packages || {};
-  const defaultAmounts = { 'starter_500': 500, 'growth_2000': 1800, 'agency_5000': 4000 };
-  const amt = (livePkgs[pkgId] && livePkgs[pkgId].price_bdt) ? Number(livePkgs[pkgId].price_bdt) : (defaultAmounts[pkgId] || 1800);
+  const enteredCode = (document.getElementById('checkoutPromoInput')?.value || '').trim().toUpperCase();
+  const pricing = (typeof getEffectivePackagePricing === 'function')
+    ? getEffectivePackagePricing(pkgId, enteredCode)
+    : { final_price: 1800 };
+  const amt = pricing.final_price || 1800;
   const bkashNum = cfg.bkash_number || '01820575753';
   const nagadNum = cfg.nagad_number || '01820575753';
 
@@ -8629,53 +8724,223 @@ function uploadPaymentQrFile(gateway, inputEl) {
 }
 
 // ══════════════════════════════════════════════════════════════════
-// SUPER ADMIN MASTER CONTROL CENTER — LIVE SITE CONFIG CONTROLLER
+// SUPER ADMIN MASTER CONTROL CENTER — LIVE SITE CONFIG & OFFERS
 // ══════════════════════════════════════════════════════════════════
 window.liveSiteConfig = window.liveSiteConfig || {};
 
-function _updatePricingCardDom(cardId, pkg) {
+function getEffectivePackagePricing(pkgId, enteredPromoCode = '') {
+  const cfg = window.liveSiteConfig || {};
+  const pkgs = cfg.packages || {};
+  const defaults = { 'starter_500': 500, 'growth_2000': 1800, 'agency_5000': 4000 };
+  const pkg = pkgs[pkgId] || { price_bdt: defaults[pkgId] || 500, credits: 500, name: pkgId };
+  const orig = Math.max(1, Number(pkg.price_bdt || defaults[pkgId] || 500));
+  const offer = cfg.promo_offer || {};
+  const isFirstTime = cfg.is_first_time_buyer !== false;
+
+  const base = {
+    original_price: orig,
+    final_price: orig,
+    discount_amount: 0,
+    discount_pct: 0,
+    offer_applied: false,
+    offer_title: '',
+    requires_code: false,
+    promo_code: offer.promo_code || ''
+  };
+
+  if (!offer.is_active) return base;
+  const target = offer.target_pkg || 'all';
+  if (target !== 'all' && target !== pkgId) return base;
+  if (offer.first_time_only && !isFirstTime) return base;
+
+  const reqCode = (offer.promo_code || '').trim().toUpperCase();
+  const userCode = (enteredPromoCode || '').trim().toUpperCase();
+  if (reqCode && userCode !== reqCode) {
+    base.requires_code = true;
+    return base;
+  }
+
+  let finalP = orig;
+  const dtype = offer.discount_type || 'custom_price';
+  const dval = Number(offer.discount_value || 0);
+  if (dtype === 'custom_price' && dval > 0) {
+    finalP = Math.max(1, Math.min(orig, dval));
+  } else if (dtype === 'percent') {
+    const pct = Math.max(0, Math.min(95, dval));
+    finalP = Math.max(1, Math.round(orig * (100 - pct) / 100));
+  } else if (dtype === 'fixed') {
+    finalP = Math.max(1, orig - dval);
+  }
+
+  if (finalP < orig) {
+    base.final_price = finalP;
+    base.discount_amount = orig - finalP;
+    base.discount_pct = Math.round(((orig - finalP) / orig) * 100);
+    base.offer_applied = true;
+    base.offer_title = offer.title || 'Special Offer';
+  }
+  return base;
+}
+
+function refreshCheckoutOfferDisplay() {
+  const pkgId = (typeof selectedPackageId !== 'undefined' && selectedPackageId) ? selectedPackageId : 'growth_2000';
+  const cfg = window.liveSiteConfig || {};
+  const offer = cfg.promo_offer || {};
+  const promoRow = document.getElementById('checkoutPromoRow');
+  const promoInput = document.getElementById('checkoutPromoInput');
+  const enteredCode = (promoInput ? promoInput.value : '').trim().toUpperCase();
+
+  // Show promo input row only if Admin configured a Promo Code for this active offer
+  const targetMatches = (offer.target_pkg === 'all' || offer.target_pkg === pkgId);
+  const eligibleFirst = (!offer.first_time_only || cfg.is_first_time_buyer !== false);
+  if (promoRow) {
+    if (offer.is_active && offer.promo_code && targetMatches && eligibleFirst) {
+      promoRow.classList.remove('hidden');
+    } else {
+      promoRow.classList.add('hidden');
+    }
+  }
+
+  const pricing = getEffectivePackagePricing(pkgId, enteredCode);
+  const priceEl = document.getElementById('checkoutSelectedPkgPrice');
+  const origEl = document.getElementById('checkoutOriginalPrice');
+  const badgeEl = document.getElementById('checkoutOfferBadge');
+
+  if (priceEl) priceEl.innerText = `BDT ${pricing.final_price.toLocaleString()}`;
+  if (pricing.offer_applied) {
+    if (origEl) {
+      origEl.innerText = `BDT ${pricing.original_price.toLocaleString()}`;
+      origEl.classList.remove('hidden');
+    }
+    if (badgeEl) {
+      badgeEl.innerText = `${pricing.discount_pct}% OFF`;
+      badgeEl.classList.remove('hidden');
+    }
+  } else {
+    if (origEl) origEl.classList.add('hidden');
+    if (badgeEl) badgeEl.classList.add('hidden');
+  }
+  if (typeof updatePaymentQrDisplay === 'function') updatePaymentQrDisplay();
+}
+
+function applyCheckoutPromoCode() {
+  const pkgId = (typeof selectedPackageId !== 'undefined' && selectedPackageId) ? selectedPackageId : 'growth_2000';
+  const code = (document.getElementById('checkoutPromoInput')?.value || '').trim().toUpperCase();
+  const pricing = getEffectivePackagePricing(pkgId, code);
+  refreshCheckoutOfferDisplay();
+  if (pricing.offer_applied) {
+    showToast(`🎉 Promo code applied! Discounted price: BDT ${pricing.final_price.toLocaleString()}`, "success");
+  } else {
+    showToast("Invalid or ineligible promo code for this plan.", "error");
+  }
+}
+
+function updateAdminOfferBadgePreview() {
+  const chk = document.getElementById('admOfferEnabled');
+  const badge = document.getElementById('admOfferLiveBadge');
+  if (!badge) return;
+  if (chk && chk.checked) {
+    badge.innerText = 'LIVE ON SITE';
+    badge.className = 'text-[10px] font-mono font-black px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 animate-pulse';
+  } else {
+    badge.innerText = 'OFF';
+    badge.className = 'text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-gray-800 text-gray-400 border border-gray-700';
+  }
+}
+
+function applyOfferPresetFirstTime250() {
+  const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+  const setChk = (id, v) => { const el = document.getElementById(id); if (el) el.checked = Boolean(v); };
+  setChk('admOfferEnabled', true);
+  setVal('admOfferTitle', 'First-Time Launch Offer (50% OFF)');
+  setVal('admOfferTargetPkg', 'starter_500');
+  setVal('admOfferDiscountType', 'custom_price');
+  setVal('admOfferDiscountValue', 250);
+  setVal('admOfferPromoCode', '');
+  setChk('admOfferFirstTimeOnly', true);
+  updateAdminOfferBadgePreview();
+  showToast("Preset loaded: 1st-Time Starter Plan BDT 500 → BDT 250! Click 'Save All Settings' to launch live.", "info");
+}
+
+function _updatePricingCardDom(cardId, pid, pkg) {
   const card = document.getElementById(cardId);
   if (!card || !pkg) return;
   const name = pkg.name || '';
   const credits = Number(pkg.credits || 0);
-  const price = Number(pkg.price_bdt || 0);
+  const pricing = getEffectivePackagePricing(pid, '');
+  const price = pricing.final_price;
   const h3 = card.querySelector('h3');
   if (h3) h3.innerText = name;
   const crBadge = card.querySelector('span.font-mono.font-bold');
   if (crBadge) crBadge.innerText = `${credits.toLocaleString()} Cr`;
+
   const priceSpan = card.querySelector('span.text-3xl');
-  if (priceSpan) priceSpan.innerText = `BDT ${price.toLocaleString()}`;
+  if (priceSpan) {
+    if (pricing.offer_applied) {
+      priceSpan.innerHTML = `<span class="text-sm text-gray-500 line-through mr-1.5 font-normal">BDT ${pricing.original_price.toLocaleString()}</span><span class="text-amber-400">BDT ${price.toLocaleString()}</span>`;
+    } else {
+      priceSpan.innerText = `BDT ${price.toLocaleString()}`;
+    }
+  }
   const perLeadP = card.querySelector('p.text-xs');
   if (perLeadP && credits > 0) {
     const rate = (price / credits).toFixed(2);
-    perLeadP.innerText = `BDT ${rate} per verified lead`;
+    perLeadP.innerHTML = pricing.offer_applied
+      ? `<span class="text-amber-300 font-bold">🔥 ${pricing.discount_pct}% OFF</span> &bull; BDT ${rate} / lead`
+      : `BDT ${rate} per verified lead`;
   }
   const btnSpan = card.querySelector('button span');
-  if (btnSpan) btnSpan.innerText = `Select ${name} (BDT ${price.toLocaleString()})`;
+  if (btnSpan) {
+    btnSpan.innerText = pricing.offer_applied
+      ? `Claim ${name} (BDT ${price.toLocaleString()})`
+      : `Select ${name} (BDT ${price.toLocaleString()})`;
+  }
 }
 
 async function loadSiteConfig() {
   try {
-    const res = await fetch('/api/site-config');
+    const hdrs = (typeof getActiveAuthHeaders === 'function') ? getActiveAuthHeaders() : {};
+    const res = await fetch('/api/site-config', { headers: hdrs });
     const d = await res.json();
     if (!d.success) return;
     window.liveSiteConfig = d;
 
-    // 1. Sync PLAN_DETAILS & Pricing Modal Cards
+    // 1. Sync PLAN_DETAILS & Pricing Modal Cards (with live offer pricing)
     if (d.packages) {
       ['starter_500', 'growth_2000', 'agency_5000'].forEach(pid => {
         const pkg = d.packages[pid];
         if (!pkg) return;
         const cr = Number(pkg.credits || 0);
-        const pr = Number(pkg.price_bdt || 0);
+        const pricing = getEffectivePackagePricing(pid, '');
         const nm = pkg.name || pid;
         if (typeof PLAN_DETAILS !== 'undefined' && PLAN_DETAILS[pid]) {
           PLAN_DETAILS[pid].name = `${nm} (${cr.toLocaleString()} Credits)`;
-          PLAN_DETAILS[pid].price = `BDT ${pr.toLocaleString()}`;
+          PLAN_DETAILS[pid].price = `BDT ${pricing.final_price.toLocaleString()}`;
           PLAN_DETAILS[pid].desc = `${cr.toLocaleString()} Verified B2B Leads + All Premium Features Unlocked`;
         }
-        _updatePricingCardDom(`pkgCard_${pid}`, pkg);
+        _updatePricingCardDom(`pkgCard_${pid}`, pid, pkg);
       });
+    }
+
+    // 1b. Sync Pricing Modal Offer Banner
+    const offer = d.promo_offer || {};
+    const offerBanner = document.getElementById('pricingOfferBanner');
+    const offerTxt = document.getElementById('pricingOfferBannerText');
+    const offerMeta = document.getElementById('pricingOfferBannerMeta');
+    const eligibleFirst = (!offer.first_time_only || d.is_first_time_buyer !== false);
+    if (offerBanner && offerTxt && offerMeta) {
+      if (offer.is_active && eligibleFirst) {
+        offerTxt.innerText = offer.title || 'Special Limited-Time Offer!';
+        const parts = [];
+        if (offer.first_time_only) parts.push('1st Purchase Only');
+        if (offer.promo_code) parts.push(`Code: ${offer.promo_code}`);
+        else parts.push('Auto-Applied');
+        if (offer.expires_at) parts.push(`Ends: ${offer.expires_at.replace('T', ' ')}`);
+        offerMeta.innerText = parts.join(' • ');
+        offerBanner.classList.remove('hidden');
+      } else {
+        offerBanner.classList.add('hidden');
+      }
     }
 
     // 2. Sync Payment & Helpline Numbers
@@ -8751,6 +9016,18 @@ async function loadAdminMasterSettings() {
 
     setVal('admAnnouncementText', d.announcement_text || '');
     setVal('admNewPasscode', '');
+
+    // Load Promotional Offer fields
+    const po = d.promo_offer || {};
+    setChk('admOfferEnabled', Boolean(po.enabled));
+    setVal('admOfferTitle', po.title || 'First-Time Launch Offer');
+    setVal('admOfferTargetPkg', po.target_pkg || 'starter_500');
+    setVal('admOfferDiscountType', po.discount_type || 'custom_price');
+    setVal('admOfferDiscountValue', po.discount_value ?? 250);
+    setVal('admOfferPromoCode', po.promo_code || '');
+    setVal('admOfferExpiresAt', po.expires_at || '');
+    setChk('admOfferFirstTimeOnly', po.first_time_only !== false);
+    updateAdminOfferBadgePreview();
   } catch (e) {
     console.error("Error loading admin master settings:", e);
   }
@@ -8759,7 +9036,7 @@ async function loadAdminMasterSettings() {
 async function saveAdminMasterSettings() {
   const getVal = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
   const getNum = (id, fb) => { const n = parseInt(getVal(id), 10); return isNaN(n) ? fb : n; };
-  const getChk = (id) => { const el = document.getElementById(id); return el ? Boolean(el.checked) : true; };
+  const getChk = (id) => { const el = document.getElementById(id); return el ? Boolean(el.checked) : false; };
 
   const payload = {
     packages: {
@@ -8791,7 +9068,17 @@ async function saveAdminMasterSettings() {
     lock_verifier: getChk('admLockVerifier'),
     lock_outreach: getChk('admLockOutreach'),
     announcement_text: getVal('admAnnouncementText'),
-    new_admin_passcode: getVal('admNewPasscode')
+    new_admin_passcode: getVal('admNewPasscode'),
+    promo_offer: {
+      enabled: getChk('admOfferEnabled'),
+      title: getVal('admOfferTitle') || 'First-Time Launch Offer',
+      target_pkg: getVal('admOfferTargetPkg') || 'starter_500',
+      discount_type: getVal('admOfferDiscountType') || 'custom_price',
+      discount_value: getNum('admOfferDiscountValue', 250),
+      promo_code: getVal('admOfferPromoCode').toUpperCase(),
+      expires_at: getVal('admOfferExpiresAt'),
+      first_time_only: getChk('admOfferFirstTimeOnly')
+    }
   };
 
   const btn = document.getElementById('btnSaveMasterSettings');

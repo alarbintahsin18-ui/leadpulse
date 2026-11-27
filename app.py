@@ -969,6 +969,9 @@ def payment_submit_route():
     live_pkgs = payment_manager.get_live_packages()
     pkg = live_pkgs.get(package_id, live_pkgs["starter_500"])
     
+    promo_code = str(data.get("promo_code", "")).strip().upper()
+    is_first_time = not client_manager.is_client_paid(cid)
+
     ok, msg, rec = payment_manager.submit_payment(
         client_id=cid,
         client_name=cl.get("name", "User"),
@@ -976,7 +979,9 @@ def payment_submit_route():
         gateway=gateway,
         sender_number=sender_number,
         trx_id=trx_id,
-        package_id=package_id
+        package_id=package_id,
+        is_first_time_buyer=is_first_time,
+        promo_code=promo_code
     )
     
     if ok and rec and rec.get("status") == "approved":
@@ -1525,10 +1530,16 @@ def get_public_site_config():
         except Exception:
             cfg = {}
     st = cfg.get("site_settings", {})
+    cid = get_request_client_id()
+    is_first_time_buyer = True
+    if cid and cid not in ("admin", "superadmin"):
+        is_first_time_buyer = not client_manager.is_client_paid(cid)
     return jsonify({
         "success": True,
         "packages": payment_manager.get_live_packages(),
         "methods": payment_manager.get_live_payment_methods(),
+        "promo_offer": payment_manager.get_live_offer(),
+        "is_first_time_buyer": is_first_time_buyer,
         "bkash_number": st.get("bkash_number", "01820575753"),
         "nagad_number": st.get("nagad_number", "01820575753"),
         "support_whatsapp": st.get("support_whatsapp", "01820575753"),
@@ -1584,6 +1595,24 @@ def admin_all_settings():
             if k in data:
                 st[k] = bool(data[k])
 
+        # 4b. Promotional Offer / First-Time Deal Campaign
+        if isinstance(data.get("promo_offer"), dict):
+            po = data["promo_offer"]
+            try:
+                dval = max(0, int(po.get("discount_value", 0) or 0))
+            except Exception:
+                dval = 0
+            st["promo_offer"] = {
+                "enabled": bool(po.get("enabled", False)),
+                "title": str(po.get("title", "First-Time Launch Offer")).strip() or "Special Offer",
+                "target_pkg": str(po.get("target_pkg", "starter_500")).strip() or "starter_500",
+                "discount_type": str(po.get("discount_type", "custom_price")).strip() or "custom_price",
+                "discount_value": dval,
+                "first_time_only": bool(po.get("first_time_only", True)),
+                "promo_code": str(po.get("promo_code", "")).strip().upper(),
+                "expires_at": str(po.get("expires_at", "")).strip()
+            }
+
         cfg["site_settings"] = st
         with open(CONFIG_PATH, "w", encoding="utf-8") as f:
             json.dump(cfg, f, indent=2)
@@ -1604,6 +1633,7 @@ def admin_all_settings():
     return jsonify({
         "success": True,
         "packages": payment_manager.get_live_packages(),
+        "promo_offer": payment_manager.get_live_offer(),
         "bkash_number": st.get("bkash_number", "01820575753"),
         "nagad_number": st.get("nagad_number", "01820575753"),
         "support_whatsapp": st.get("support_whatsapp", "01820575753"),
