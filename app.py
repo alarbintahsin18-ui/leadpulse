@@ -90,22 +90,27 @@ def check_and_deduct_credits(cost, reason="Service Usage"):
 def check_feature_access(feature_name):
     """
     Checks if active client can use the feature.
-    Free users (with 250 trial credits) can ONLY use Lead Extractor (GMaps & Hunter).
-    Email Verifier and Cold Outreach are locked for free users until upgraded via bKash/Nagad!
+    Respects live Super Admin feature lock toggles from config.json.
     """
     cid = get_request_client_id()
     if cid in ("admin", "superadmin"):
         return True, "Admin mode"
     if not cid:
-        return False, "Please sign in with Google to claim your 250 free trial credits."
+        return False, "Please sign in with Google to claim your free trial credits."
     cl = client_manager.get_client(cid)
     if not cl:
         return False, "Client account not found."
-    
+
     is_paid = client_manager.is_client_paid(cid)
     if not is_paid:
-        if feature_name in ["email_verifier", "outreach_mailer", "sales_navigator"]:
-            return False, "🔒 This feature is exclusively for Premium subscribers. Free 250 trial credits only support Lead Extractor. Please upgrade your plan via bKash or Nagad to unlock."
+        st = payment_manager._load_site_settings()
+        lock_map = {
+            "email_verifier": bool(st.get("lock_verifier", True)),
+            "outreach_mailer": bool(st.get("lock_outreach", True)),
+            "sales_navigator": bool(st.get("lock_sales_nav", True)),
+        }
+        if lock_map.get(feature_name, False):
+            return False, "🔒 This feature is exclusively for Premium subscribers. Please upgrade your plan via bKash or Nagad to unlock."
     return True, "OK"
 
 def decode_google_jwt(jwt_token):
@@ -518,7 +523,8 @@ def bulk_enrich():
 
     cid = get_request_client_id()
     is_paid = client_manager.is_client_paid(cid)
-    max_batch = 50 if is_paid else 25
+    free_batch_limit = int(payment_manager._load_site_settings().get("free_batch_limit", 25))
+    max_batch = 50 if is_paid else free_batch_limit
     queries = [q for q in queries if q][:max_batch]
     if not queries:
         return jsonify({"success": False, "message": "No valid queries provided."}), 400
@@ -584,9 +590,10 @@ def gmaps_search():
 
     is_paid = client_manager.is_client_paid(cid)
     
-    # FREE PLAN LIMIT: Maximum 25 leads per batch
-    if not is_paid and limit > 25:
-        limit = 25
+    # FREE PLAN LIMIT: Driven live by Super Admin settings (default 25)
+    free_batch_limit = int(payment_manager._load_site_settings().get("free_batch_limit", 25))
+    if not is_paid and limit > free_batch_limit:
+        limit = free_batch_limit
 
     if cid not in ("admin", "superadmin"):
         cl = client_manager.get_client(cid)
@@ -934,8 +941,8 @@ def detect_tech_route():
 def payment_methods_route():
     return jsonify({
         "success": True,
-        "packages": list(payment_manager.PACKAGES.values()),
-        "methods": payment_manager.PAYMENT_METHODS
+        "packages": list(payment_manager.get_live_packages().values()),
+        "methods": payment_manager.get_live_payment_methods()
     })
 
 @app.route("/api/payment/submit", methods=["POST"])
@@ -959,7 +966,8 @@ def payment_submit_route():
     if not trx_id or len(trx_id) < 6:
         return jsonify({"success": False, "message": "Please enter a valid Transaction ID (TrxID)."}), 400
         
-    pkg = payment_manager.PACKAGES.get(package_id, payment_manager.PACKAGES["starter_500"])
+    live_pkgs = payment_manager.get_live_packages()
+    pkg = live_pkgs.get(package_id, live_pkgs["starter_500"])
     
     ok, msg, rec = payment_manager.submit_payment(
         client_id=cid,
@@ -1078,7 +1086,8 @@ def payment_uddoktapay_initiate():
 
     data = request.json or {}
     package_id = data.get("package_id", "starter_500")
-    pkg = payment_manager.PACKAGES.get(package_id, payment_manager.PACKAGES["starter_500"])
+    live_pkgs = payment_manager.get_live_packages()
+    pkg = live_pkgs.get(package_id, live_pkgs["starter_500"])
 
     host_url = request.host_url.rstrip("/")
     redirect_url = f"{host_url}/?payment=success"
@@ -1277,7 +1286,14 @@ def export_leads_webhook():
 # ADVANCED SAAS EXTENSIONS: REFERRALS, WHITE-LABEL, HEALTH & DRIP
 # ══════════════════════════════════════════════════════════════════
 
-CONFIG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.json")
+_BUNDLED_CONFIG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.json")
+CONFIG_PATH = "/tmp/config.json" if os.environ.get("VERCEL") else _BUNDLED_CONFIG_PATH
+if os.environ.get("VERCEL") and not os.path.exists(CONFIG_PATH) and os.path.exists(_BUNDLED_CONFIG_PATH):
+    try:
+        import shutil as _shutil
+        _shutil.copyfile(_BUNDLED_CONFIG_PATH, CONFIG_PATH)
+    except Exception:
+        pass
 
 def load_branding_config():
     if not os.path.exists(CONFIG_PATH):
@@ -1497,6 +1513,112 @@ def admin_paysync_simulate():
         title = "bKash"
     ok, msg, rec, auto_app = sms_payment_sync.record_incoming_sms(title, raw, device_name="Admin Test Simulator")
     return jsonify({"success": ok, "message": msg, "sms": rec, "auto_approved_order": auto_app})
+
+@app.route("/api/site-config", methods=["GET"])
+def get_public_site_config():
+    """Public live configuration driven 100% by Super Admin Panel."""
+    cfg = {}
+    if os.path.exists(CONFIG_PATH):
+        try:
+            with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+                cfg = json.load(f)
+        except Exception:
+            cfg = {}
+    st = cfg.get("site_settings", {})
+    return jsonify({
+        "success": True,
+        "packages": payment_manager.get_live_packages(),
+        "methods": payment_manager.get_live_payment_methods(),
+        "bkash_number": st.get("bkash_number", "01820575753"),
+        "nagad_number": st.get("nagad_number", "01820575753"),
+        "support_whatsapp": st.get("support_whatsapp", "01820575753"),
+        "free_trial_credits": int(st.get("free_trial_credits", 250)),
+        "free_batch_limit": int(st.get("free_batch_limit", 25)),
+        "referral_inviter_bonus": int(st.get("referral_inviter_bonus", 100)),
+        "referral_friend_bonus": int(st.get("referral_friend_bonus", 50)),
+        "referral_commission_pct": int(st.get("referral_commission_pct", 20)),
+        "lock_sales_nav": bool(st.get("lock_sales_nav", True)),
+        "lock_verifier": bool(st.get("lock_verifier", True)),
+        "lock_outreach": bool(st.get("lock_outreach", True)),
+        "announcement_text": st.get("announcement_text", "")
+    })
+
+@app.route("/api/admin/settings/all", methods=["GET", "POST"])
+def admin_all_settings():
+    """Super Admin master settings controller: Pricing, Numbers, Limits, Feature Gates, Passcode."""
+    cid = get_request_client_id()
+    if cid not in ("admin", "superadmin", ""):
+        return jsonify({"success": False, "message": "Unauthorized"}), 403
+
+    cfg = {}
+    if os.path.exists(CONFIG_PATH):
+        try:
+            with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+                cfg = json.load(f)
+        except Exception:
+            cfg = {}
+
+    if request.method == "POST":
+        data = request.json or {}
+        st = cfg.get("site_settings", {})
+
+        # 1. Dynamic Pricing Packages
+        if isinstance(data.get("packages"), dict):
+            st["packages"] = data["packages"]
+
+        # 2. Payment Numbers & Support
+        for k in ["bkash_number", "nagad_number", "support_whatsapp", "announcement_text"]:
+            if k in data:
+                st[k] = str(data[k]).strip()
+
+        # 3. Numeric Limits & Referral Bonuses
+        for k in ["free_trial_credits", "free_batch_limit", "referral_inviter_bonus", "referral_friend_bonus", "referral_commission_pct"]:
+            if k in data and str(data[k]).strip() != "":
+                try:
+                    st[k] = max(0, int(data[k]))
+                except Exception:
+                    pass
+
+        # 4. Feature Lock Toggles
+        for k in ["lock_sales_nav", "lock_verifier", "lock_outreach", "bkash_enabled", "nagad_enabled"]:
+            if k in data:
+                st[k] = bool(data[k])
+
+        cfg["site_settings"] = st
+        with open(CONFIG_PATH, "w", encoding="utf-8") as f:
+            json.dump(cfg, f, indent=2)
+
+        # 5. Optional Master Admin Passcode Change
+        new_pass = (data.get("new_admin_passcode") or "").strip()
+        pass_msg = ""
+        if new_pass and len(new_pass) >= 4:
+            cdata = client_manager.load_clients_data()
+            cdata.setdefault("admin", {})["passcode"] = new_pass
+            client_manager.save_clients_data(cdata)
+            pass_msg = " Admin passcode also updated!"
+
+        return jsonify({"success": True, "message": f"All Super Admin settings saved successfully!{pass_msg}"})
+
+    # GET current full settings
+    st = cfg.get("site_settings", {})
+    return jsonify({
+        "success": True,
+        "packages": payment_manager.get_live_packages(),
+        "bkash_number": st.get("bkash_number", "01820575753"),
+        "nagad_number": st.get("nagad_number", "01820575753"),
+        "support_whatsapp": st.get("support_whatsapp", "01820575753"),
+        "bkash_enabled": bool(st.get("bkash_enabled", True)),
+        "nagad_enabled": bool(st.get("nagad_enabled", True)),
+        "free_trial_credits": int(st.get("free_trial_credits", 250)),
+        "free_batch_limit": int(st.get("free_batch_limit", 25)),
+        "referral_inviter_bonus": int(st.get("referral_inviter_bonus", 100)),
+        "referral_friend_bonus": int(st.get("referral_friend_bonus", 50)),
+        "referral_commission_pct": int(st.get("referral_commission_pct", 20)),
+        "lock_sales_nav": bool(st.get("lock_sales_nav", True)),
+        "lock_verifier": bool(st.get("lock_verifier", True)),
+        "lock_outreach": bool(st.get("lock_outreach", True)),
+        "announcement_text": st.get("announcement_text", "")
+    })
 
 @app.route("/health", methods=["GET"])
 def health_check():

@@ -4,6 +4,47 @@ import uuid
 from datetime import datetime
 
 PAYMENTS_FILE = "/tmp/clienthunt_data/payments.json" if os.environ.get("VERCEL") else os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "payments.json")
+_CONFIG_FILE = "/tmp/config.json" if os.environ.get("VERCEL") else os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.json")
+
+def _load_site_settings():
+    try:
+        if os.path.exists(_CONFIG_FILE):
+            with open(_CONFIG_FILE, "r", encoding="utf-8") as f:
+                return json.load(f).get("site_settings", {})
+    except Exception:
+        pass
+    return {}
+
+def get_live_packages():
+    """Returns packages merged with live Admin Panel overrides from config.json."""
+    settings = _load_site_settings()
+    overrides = settings.get("packages", {})
+    merged = {}
+    for pid, base in PACKAGES.items():
+        p = dict(base)
+        ov = overrides.get(pid, {})
+        if ov.get("name"):
+            p["name"] = str(ov["name"]).strip()
+        if ov.get("credits") is not None:
+            p["credits"] = int(ov["credits"])
+        if ov.get("price_bdt") is not None:
+            p["price_bdt"] = int(ov["price_bdt"])
+        if ov.get("price_usd") is not None:
+            p["price_usd"] = int(ov["price_usd"])
+        merged[pid] = p
+    return merged
+
+def get_live_payment_methods():
+    """Returns payment methods merged with live Admin Panel numbers."""
+    settings = _load_site_settings()
+    methods = {k: dict(v) for k, v in PAYMENT_METHODS.items()}
+    if settings.get("bkash_number"):
+        methods["bkash"]["number"] = str(settings["bkash_number"]).strip()
+    if settings.get("nagad_number"):
+        methods["nagad"]["number"] = str(settings["nagad_number"]).strip()
+    methods["bkash"]["enabled"] = bool(settings.get("bkash_enabled", True))
+    methods["nagad"]["enabled"] = bool(settings.get("nagad_enabled", True))
+    return methods
 
 PACKAGES = {
     "starter_500": {
@@ -76,7 +117,8 @@ def submit_payment(client_id, client_name, client_email, gateway, sender_number,
     import sms_payment_sync
 
     payments = load_payments()
-    pkg = PACKAGES.get(package_id) or PACKAGES["starter_500"]
+    live_pkgs = get_live_packages()
+    pkg = live_pkgs.get(package_id) or live_pkgs["starter_500"]
     trx_clean = trx_id.strip().upper()
     sender_clean = sender_number.strip()
     

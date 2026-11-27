@@ -368,9 +368,16 @@ def get_or_create_google_client(email, name="", picture="", device_id="", ip_add
     trial_claims = data.setdefault("free_trial_claims", [])
     
     device_claimed = any(c.get("device_id") == device_id for c in trial_claims if device_id)
-    # Device/IP trial blocking disabled per owner request — every new user gets 250 free trial credits
+    # Device/IP trial blocking disabled per owner request — every new user gets live admin-configured free trial credits
     is_trial_abuser = False
-    initial_credits = 250
+    try:
+        import payment_manager as _pm
+        _st = _pm._load_site_settings()
+    except Exception:
+        _st = {}
+    initial_credits = max(0, int(_st.get("free_trial_credits", 250)))
+    ref_inviter_bonus = max(0, int(_st.get("referral_inviter_bonus", 100)))
+    ref_friend_bonus = max(0, int(_st.get("referral_friend_bonus", 50)))
 
     # 4. Check Referral Partner Code
     referrer = None
@@ -389,7 +396,7 @@ def get_or_create_google_client(email, name="", picture="", device_id="", ip_add
         "email": email_clean,
         "avatar": picture or "",
         "api_key": generate_api_key(),
-        "credits": min(250, initial_credits),
+        "credits": initial_credits,
         "is_paid": False,
         "plan": "free_trial",
         "total_spent": 0,
@@ -402,28 +409,28 @@ def get_or_create_google_client(email, name="", picture="", device_id="", ip_add
         "referral_code": referral_code,
         "referred_by": referrer["id"] if referrer else None,
         "created_at": now_str,
-        "notes": f"Google Sign-In (Free Trial 250 Credits awarded - Extractor Only)"
+        "notes": f"Google Sign-In (Free Trial {initial_credits} Credits awarded)"
     }
     clients.append(new_client)
 
     if not is_trial_abuser:
-        # Referral Welcome Bonus (+50 for invited user)
+        # Referral Welcome Bonus (admin-configured)
         if referrer:
-            new_client["credits"] += 50
-            # Reward Referrer (+100 credits)
-            referrer["credits"] = int(referrer.get("credits", 0)) + 100
+            new_client["credits"] += ref_friend_bonus
+            # Reward Referrer
+            referrer["credits"] = int(referrer.get("credits", 0)) + ref_inviter_bonus
             data.setdefault("transactions", []).insert(0, {
                 "id": str(uuid.uuid4())[:8],
                 "client_id": referrer["id"],
                 "client_name": referrer.get("company", referrer.get("name")),
                 "type": "credit_add",
-                "amount": 100,
+                "amount": ref_inviter_bonus,
                 "balance_after": referrer["credits"],
                 "reason": f"🎁 Referral Bonus: {new_client['name']} signed up with your invite link!",
                 "timestamp": now_str
             })
 
-        # Record free trial claim to prevent 2nd claims from this device / IP / UID
+        # Record free trial claim
         trial_claims.append({
             "client_id": client_id,
             "email": email_clean,
@@ -438,9 +445,9 @@ def get_or_create_google_client(email, name="", picture="", device_id="", ip_add
             "client_id": client_id,
             "client_name": new_client["company"],
             "type": "credit_add",
-            "amount": 250,
-            "balance_after": 250,
-            "reason": "🎁 Welcome Bonus: 250 Free Credits",
+            "amount": initial_credits,
+            "balance_after": new_client["credits"],
+            "reason": f"🎁 Welcome Bonus: {initial_credits} Free Credits",
             "timestamp": now_str
         })
     else:

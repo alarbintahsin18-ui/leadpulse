@@ -88,6 +88,11 @@
 </head>
 <body class="min-h-screen flex flex-col antialiased">
 
+ <!-- Dynamic Global Announcement Banner (Controlled from /admin) -->
+ <div id="globalAnnouncementBar" class="hidden bg-gradient-to-r from-emerald-600 via-cyan-600 to-indigo-600 text-white text-xs font-bold text-center py-2 px-4 shadow-md">
+   <span id="globalAnnouncementText"></span>
+ </div>
+
  <!-- Top Navigation Header -->
  <header class="border-b border-gray-800 bg-gray-900/95 backdrop-blur-md sticky top-0 z-40">
  <div class="w-full max-w-full px-3 sm:px-4 lg:px-6 min-h-[60px] py-1.5 flex items-center justify-between gap-3">
@@ -1960,7 +1965,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
         <label class="block text-xs font-semibold text-gray-300 mb-1">Agency Brand Name</label>
-        <input type="text" id="brandNameInput" placeholder="e.g. Leadzio AI or Apex Media" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500 font-medium">
+        <input type="text" id="brandNameInput" placeholder="e.g. Leadzio or Apex Media" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500 font-medium">
       </div>
       <div>
         <label class="block text-xs font-semibold text-gray-300 mb-1">Agency Logo URL (PNG/SVG, Transparent)</label>
@@ -1972,7 +1977,7 @@
       </div>
       <div>
         <label class="block text-xs font-semibold text-gray-300 mb-1">Custom Footer & Copyright Text</label>
-        <input type="text" id="brandFooterInput" placeholder="e.g. Powered by Apex Media Growth Labs" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500 font-medium">
+        <input type="text" id="brandFooterInput" placeholder="e.g. Powered by Leadzio AI" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500 font-medium">
       </div>
     </div>
 
@@ -1981,6 +1986,156 @@
         <i class="fa-solid fa-floppy-disk"></i>
         <span>Save White-Label Branding</span>
       </button>
+    </div>
+  </div>
+
+  <!-- SUPER ADMIN MASTER CONTROL CENTER: PRICING, NUMBERS, LIMITS, FEATURE GATES & SECURITY -->
+  <div class="bg-gray-900/95 border border-amber-500/40 rounded-3xl p-6 shadow-2xl space-y-5">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-gray-800 pb-4 gap-3">
+      <div>
+        <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[11px] font-mono font-bold border border-amber-500/30">
+          <i class="fa-solid fa-sliders"></i>
+          <span>100% Live Master Control</span>
+        </div>
+        <h3 class="text-base font-extrabold text-white mt-1">Pricing Packages, Payment Numbers, Feature Locks &amp; Security</h3>
+        <p class="text-xs text-gray-400">Edit package prices, credits, bKash/Nagad numbers, free trial limits, referral bonuses, site announcement, and admin passcode in real time.</p>
+      </div>
+      <button type="button" onclick="saveAdminMasterSettings()" id="btnSaveMasterSettings" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black font-black text-xs shadow-lg shadow-amber-500/25 transition flex items-center gap-2 cursor-pointer shrink-0">
+        <i class="fa-solid fa-check-double"></i>
+        <span>Save All Master Settings</span>
+      </button>
+    </div>
+
+    <!-- 1. Dynamic Pricing & Credits Control -->
+    <div class="space-y-2.5">
+      <h4 class="text-xs font-extrabold text-amber-300 uppercase font-mono flex items-center gap-1.5">
+        <i class="fa-solid fa-tags"></i> 1. Credit Packages &amp; Pricing (Live Sync to Pricing Modal)
+      </h4>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <!-- Starter -->
+        <div class="bg-gray-950 border border-gray-800 rounded-2xl p-4 space-y-2.5">
+          <div class="text-xs font-bold text-cyan-400">Package 1: Starter</div>
+          <div>
+            <label class="text-[10px] text-gray-400 block mb-0.5">Plan Name</label>
+            <input type="text" id="admPkgStarterName" value="Starter Plan" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:border-amber-500 focus:outline-none">
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="text-[10px] text-gray-400 block mb-0.5">Credits</label>
+              <input type="number" id="admPkgStarterCredits" value="500" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-2.5 py-1.5 text-xs text-emerald-400 font-mono font-bold focus:border-amber-500 focus:outline-none">
+            </div>
+            <div>
+              <label class="text-[10px] text-gray-400 block mb-0.5">Price (BDT)</label>
+              <input type="number" id="admPkgStarterPrice" value="500" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-2.5 py-1.5 text-xs text-amber-300 font-mono font-bold focus:border-amber-500 focus:outline-none">
+            </div>
+          </div>
+        </div>
+        <!-- Growth Pro -->
+        <div class="bg-gray-950 border border-emerald-500/30 rounded-2xl p-4 space-y-2.5">
+          <div class="text-xs font-bold text-emerald-400">Package 2: Growth Pro (Popular)</div>
+          <div>
+            <label class="text-[10px] text-gray-400 block mb-0.5">Plan Name</label>
+            <input type="text" id="admPkgGrowthName" value="Growth Pro" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:border-amber-500 focus:outline-none">
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="text-[10px] text-gray-400 block mb-0.5">Credits</label>
+              <input type="number" id="admPkgGrowthCredits" value="2000" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-2.5 py-1.5 text-xs text-emerald-400 font-mono font-bold focus:border-amber-500 focus:outline-none">
+            </div>
+            <div>
+              <label class="text-[10px] text-gray-400 block mb-0.5">Price (BDT)</label>
+              <input type="number" id="admPkgGrowthPrice" value="1800" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-2.5 py-1.5 text-xs text-amber-300 font-mono font-bold focus:border-amber-500 focus:outline-none">
+            </div>
+          </div>
+        </div>
+        <!-- Agency -->
+        <div class="bg-gray-950 border border-purple-500/30 rounded-2xl p-4 space-y-2.5">
+          <div class="text-xs font-bold text-purple-400">Package 3: Agency Pro</div>
+          <div>
+            <label class="text-[10px] text-gray-400 block mb-0.5">Plan Name</label>
+            <input type="text" id="admPkgAgencyName" value="Agency Unlimited" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:border-amber-500 focus:outline-none">
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="text-[10px] text-gray-400 block mb-0.5">Credits</label>
+              <input type="number" id="admPkgAgencyCredits" value="5000" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-2.5 py-1.5 text-xs text-emerald-400 font-mono font-bold focus:border-amber-500 focus:outline-none">
+            </div>
+            <div>
+              <label class="text-[10px] text-gray-400 block mb-0.5">Price (BDT)</label>
+              <input type="number" id="admPkgAgencyPrice" value="4000" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-2.5 py-1.5 text-xs text-amber-300 font-mono font-bold focus:border-amber-500 focus:outline-none">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Payment Numbers & Limits -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2 border-t border-gray-800/80">
+      <div>
+        <label class="block text-xs font-bold text-pink-400 mb-1">bKash Personal Number</label>
+        <input type="text" id="admBkashNumber" value="01820575753" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:border-pink-500 focus:outline-none">
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-orange-400 mb-1">Nagad Personal Number</label>
+        <input type="text" id="admNagadNumber" value="01820575753" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:border-orange-500 focus:outline-none">
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-emerald-400 mb-1">WhatsApp / Helpline Number</label>
+        <input type="text" id="admSupportWhatsapp" value="01820575753" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:border-emerald-500 focus:outline-none">
+      </div>
+    </div>
+
+    <!-- 3. Trial, Batch Limit & Referral Controls -->
+    <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 pt-2 border-t border-gray-800/80">
+      <div>
+        <label class="block text-[10px] font-bold text-gray-400 mb-1">Free Trial Credits</label>
+        <input type="number" id="admFreeTrialCredits" value="250" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2 text-xs text-emerald-300 font-mono font-bold focus:outline-none">
+      </div>
+      <div>
+        <label class="block text-[10px] font-bold text-gray-400 mb-1">Free Batch Max</label>
+        <input type="number" id="admFreeBatchLimit" value="25" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2 text-xs text-cyan-300 font-mono font-bold focus:outline-none">
+      </div>
+      <div>
+        <label class="block text-[10px] font-bold text-gray-400 mb-1">Referrer Bonus</label>
+        <input type="number" id="admRefInviterBonus" value="100" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2 text-xs text-pink-300 font-mono font-bold focus:outline-none">
+      </div>
+      <div>
+        <label class="block text-[10px] font-bold text-gray-400 mb-1">Friend Bonus</label>
+        <input type="number" id="admRefFriendBonus" value="50" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2 text-xs text-pink-300 font-mono font-bold focus:outline-none">
+      </div>
+      <div>
+        <label class="block text-[10px] font-bold text-gray-400 mb-1">Commission (%)</label>
+        <input type="number" id="admRefCommPct" value="20" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2 text-xs text-amber-300 font-mono font-bold focus:outline-none">
+      </div>
+    </div>
+
+    <!-- 4. Feature Gates, Global Announcement & Admin Passcode -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-gray-800/80">
+      <div class="bg-gray-950 border border-gray-800 rounded-2xl p-4 space-y-2.5">
+        <div class="text-xs font-bold text-white"><i class="fa-solid fa-lock text-amber-400 mr-1"></i> Free Tier Feature Locks</div>
+        <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
+          <input type="checkbox" id="admLockSalesNav" checked class="w-4 h-4 accent-amber-500 rounded">
+          <span>Lock LinkedIn Sales Navigator for Free Users</span>
+        </label>
+        <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
+          <input type="checkbox" id="admLockVerifier" checked class="w-4 h-4 accent-amber-500 rounded">
+          <span>Lock Real-Time Email Verifier for Free Users</span>
+        </label>
+        <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
+          <input type="checkbox" id="admLockOutreach" checked class="w-4 h-4 accent-amber-500 rounded">
+          <span>Lock AI Cold Outreach for Free Users</span>
+        </label>
+      </div>
+      <div class="bg-gray-950 border border-gray-800 rounded-2xl p-4 space-y-3">
+        <div>
+          <label class="block text-xs font-bold text-cyan-300 mb-1"><i class="fa-solid fa-bullhorn mr-1"></i> Top Site Announcement Banner (Optional)</label>
+          <input type="text" id="admAnnouncementText" placeholder="e.g. 🔥 Launch Offer: 500 Verified Leads for ৳500 only!" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white focus:border-cyan-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-rose-400 mb-1"><i class="fa-solid fa-shield-halved mr-1"></i> Change Master Admin Passcode (Leave blank to keep current)</label>
+          <input type="password" id="admNewPasscode" placeholder="Enter new strong passcode..." class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:border-rose-500 focus:outline-none">
+        </div>
+      </div>
     </div>
   </div>
 
@@ -2450,8 +2605,8 @@
  Leadzio AI Pricing Plans
  </h2>
  <p class="text-xs sm:text-sm text-gray-400 leading-relaxed">
- Free 250 credits from Google sign-in cover Lead Extractor.<br>
- <b class="text-purple-300">Email Verifier</b> <b class="text-pink-300"> Outreach</b> USAGE bKash Nagad TOP-UP ।
+ Free trial credits from Google sign-in cover Lead Extractor.<br>
+ Upgrade via <b class="text-pink-300">bKash</b> or <b class="text-amber-300">Nagad</b> to unlock <b class="text-purple-300">Email Verifier</b> &amp; <b class="text-cyan-300">Cold Outreach</b>.
  </p>
  </div>
 
@@ -2478,7 +2633,7 @@
  </div>
  <div class="flex items-center gap-2">
  <i class="fa-solid fa-check text-emerald-400 text-xs"></i>
- <span class="text-purple-300 font-semibold">Email Verifier lock</span>
+ <span class="text-purple-300 font-semibold">Email Verifier Unlocked</span>
  </div>
  <div class="flex items-center gap-2">
  <i class="fa-solid fa-check text-emerald-400 text-xs"></i>
@@ -2582,7 +2737,7 @@
  <span>•</span>
  <span>🔒 bKash & Nagad Instant Verification</span>
  <span>•</span>
- <span>📞 Helpline / WhatsApp: <b class="text-white">01820575753</b></span>
+ <span>📞 Helpline / WhatsApp: <b id="pricingHelplineNumber" class="text-white">01820575753</b></span>
  </div>
  <button onclick="closePricingModal();" class="text-gray-400 hover:text-white font-semibold text-xs flex items-center gap-1 cursor-pointer">
  Maybe Later <i class="fa-solid fa-xmark text-[10px]"></i>
@@ -3509,6 +3664,7 @@
   }
 
   loadAgencyBranding();
+  if (typeof loadSiteConfig === 'function') loadSiteConfig();
   updateFeatureLockUI();
   loadUserSenderProfile();
   populateDashboardMetrics();
@@ -6642,7 +6798,13 @@ function openSalesNavOutreachLead(idx) {
  const nBtn = document.getElementById('tabNagadBtn');
  const lbl = document.getElementById('paymentGatewayLabel');
  const gwIcon = document.getElementById('activeGatewayIcon');
- 
+ const numEl = document.getElementById('paymentTargetNumber');
+ const cfg = window.liveSiteConfig || {};
+ const liveNum = gw === 'bkash' ? (cfg.bkash_number || '01820575753') : (cfg.nagad_number || '01820575753');
+
+ if (numEl) numEl.innerText = liveNum;
+ document.querySelectorAll('.checkout-live-number').forEach(el => el.innerText = liveNum);
+
  if (gw === 'bkash') {
  if (bBtn) bBtn.className = "py-2.5 px-3 rounded-xl bg-[#E2136E] text-white flex items-center justify-center gap-2 transition cursor-pointer font-bold text-xs shadow-lg shadow-[#E2136E]/20";
  if (nBtn) nBtn.className = "py-2.5 px-3 rounded-xl bg-gray-900 text-gray-400 hover:text-white border border-gray-800 flex items-center justify-center gap-2 transition cursor-pointer font-bold text-xs";
@@ -7178,6 +7340,7 @@ function openSalesNavOutreachLead(idx) {
  renderCreditTransactions(d.transactions || []);
  loadAdminPayments();
  loadPaySyncStatus();
+ if (typeof loadAdminMasterSettings === 'function') loadAdminMasterSettings();
  } else {
  if (d.client) {
  allClientsList = [d.client];
@@ -7195,6 +7358,7 @@ function openSalesNavOutreachLead(idx) {
  await loadClientsData();
  await loadAdminPayments();
  loadPaySyncStatus();
+ if (typeof loadAdminMasterSettings === 'function') loadAdminMasterSettings();
  showToast(" Payment Refresh !", "success");
  }
 
@@ -7696,6 +7860,7 @@ function openSalesNavOutreachLead(idx) {
  showToast("🎉 " + d.message, "success");
  await loadAdminPayments();
  loadPaySyncStatus();
+ if (typeof loadAdminMasterSettings === 'function') loadAdminMasterSettings();
  await loadClientsData();
  } else {
  showToast("Approval failed: " + d.message, "error");
@@ -7719,6 +7884,7 @@ function openSalesNavOutreachLead(idx) {
  showToast("Payment Cancel completed।", "info");
  await loadAdminPayments();
  loadPaySyncStatus();
+ if (typeof loadAdminMasterSettings === 'function') loadAdminMasterSettings();
  } else {
  showToast("Failed: " + d.message, "error");
  }
@@ -7740,6 +7906,7 @@ function openSalesNavOutreachLead(idx) {
  showToast("Payment record deleted.", "info");
  await loadAdminPayments();
  loadPaySyncStatus();
+ if (typeof loadAdminMasterSettings === 'function') loadAdminMasterSettings();
  } else {
  showToast("Failed: " + d.message, "error");
  }
@@ -8396,12 +8563,17 @@ function togglePaymentQrBox() {
 function updatePaymentQrDisplay(useStaticFallback = false) {
   const gw = (typeof selectedGateway !== 'undefined' && selectedGateway) ? selectedGateway : 'bkash';
   const pkgId = (typeof selectedPackageId !== 'undefined' && selectedPackageId) ? selectedPackageId : 'growth_2000';
-  const pkgAmounts = { 'starter_500': 500, 'growth_2000': 1800, 'agency_5000': 4000 };
-  const amt = pkgAmounts[pkgId] || 1800;
+  const cfg = window.liveSiteConfig || {};
+  const livePkgs = cfg.packages || {};
+  const defaultAmounts = { 'starter_500': 500, 'growth_2000': 1800, 'agency_5000': 4000 };
+  const amt = (livePkgs[pkgId] && livePkgs[pkgId].price_bdt) ? Number(livePkgs[pkgId].price_bdt) : (defaultAmounts[pkgId] || 1800);
+  const bkashNum = cfg.bkash_number || '01820575753';
+  const nagadNum = cfg.nagad_number || '01820575753';
 
   let qrUrl = '';
   if (gw === 'bkash') {
-    qrUrl = useStaticFallback
+    const hasPrefilledQr = [500, 1800, 4000].includes(amt) && bkashNum === '01820575753';
+    qrUrl = (useStaticFallback || !hasPrefilledQr)
       ? '/static/img/bkash_qr.png'
       : `/static/img/bkash_qr_${amt}.png`;
   } else {
@@ -8413,11 +8585,12 @@ function updatePaymentQrDisplay(useStaticFallback = false) {
   const cap = document.getElementById('paymentQrCaption');
   if (cap) {
     if (gw === 'bkash') {
-      cap.innerHTML = useStaticFallback
-        ? `Scan with bKash App &bull; Send Money <b>BDT ${amt.toLocaleString()}</b> to 01820575753`
+      const hasPrefilledQr = [500, 1800, 4000].includes(amt) && bkashNum === '01820575753';
+      cap.innerHTML = (useStaticFallback || !hasPrefilledQr)
+        ? `Scan with bKash App &bull; Send Money <b>BDT ${amt.toLocaleString()}</b> to ${bkashNum}`
         : `Scan with bKash App &bull; Auto-fills <b>BDT ${amt.toLocaleString()}</b> &bull; <button type="button" onclick="updatePaymentQrDisplay(true)" class="underline text-pink-600 cursor-pointer">Standard QR</button>`;
     } else {
-      cap.innerHTML = `Nagad Personal &bull; Send Money <b>BDT ${amt.toLocaleString()}</b> to 01820575753`;
+      cap.innerHTML = `Nagad Personal &bull; Send Money <b>BDT ${amt.toLocaleString()}</b> to ${nagadNum}`;
     }
   }
   if (qrUrl && img && ph) {
@@ -8453,6 +8626,205 @@ function uploadPaymentQrFile(gateway, inputEl) {
     }
   };
   reader.readAsDataURL(file);
+}
+
+// ══════════════════════════════════════════════════════════════════
+// SUPER ADMIN MASTER CONTROL CENTER — LIVE SITE CONFIG CONTROLLER
+// ══════════════════════════════════════════════════════════════════
+window.liveSiteConfig = window.liveSiteConfig || {};
+
+function _updatePricingCardDom(cardId, pkg) {
+  const card = document.getElementById(cardId);
+  if (!card || !pkg) return;
+  const name = pkg.name || '';
+  const credits = Number(pkg.credits || 0);
+  const price = Number(pkg.price_bdt || 0);
+  const h3 = card.querySelector('h3');
+  if (h3) h3.innerText = name;
+  const crBadge = card.querySelector('span.font-mono.font-bold');
+  if (crBadge) crBadge.innerText = `${credits.toLocaleString()} Cr`;
+  const priceSpan = card.querySelector('span.text-3xl');
+  if (priceSpan) priceSpan.innerText = `BDT ${price.toLocaleString()}`;
+  const perLeadP = card.querySelector('p.text-xs');
+  if (perLeadP && credits > 0) {
+    const rate = (price / credits).toFixed(2);
+    perLeadP.innerText = `BDT ${rate} per verified lead`;
+  }
+  const btnSpan = card.querySelector('button span');
+  if (btnSpan) btnSpan.innerText = `Select ${name} (BDT ${price.toLocaleString()})`;
+}
+
+async function loadSiteConfig() {
+  try {
+    const res = await fetch('/api/site-config');
+    const d = await res.json();
+    if (!d.success) return;
+    window.liveSiteConfig = d;
+
+    // 1. Sync PLAN_DETAILS & Pricing Modal Cards
+    if (d.packages) {
+      ['starter_500', 'growth_2000', 'agency_5000'].forEach(pid => {
+        const pkg = d.packages[pid];
+        if (!pkg) return;
+        const cr = Number(pkg.credits || 0);
+        const pr = Number(pkg.price_bdt || 0);
+        const nm = pkg.name || pid;
+        if (typeof PLAN_DETAILS !== 'undefined' && PLAN_DETAILS[pid]) {
+          PLAN_DETAILS[pid].name = `${nm} (${cr.toLocaleString()} Credits)`;
+          PLAN_DETAILS[pid].price = `BDT ${pr.toLocaleString()}`;
+          PLAN_DETAILS[pid].desc = `${cr.toLocaleString()} Verified B2B Leads + All Premium Features Unlocked`;
+        }
+        _updatePricingCardDom(`pkgCard_${pid}`, pkg);
+      });
+    }
+
+    // 2. Sync Payment & Helpline Numbers
+    const gw = (typeof selectedGateway !== 'undefined' && selectedGateway) ? selectedGateway : 'bkash';
+    const numEl = document.getElementById('paymentTargetNumber');
+    if (numEl) {
+      numEl.innerText = gw === 'bkash' ? (d.bkash_number || '01820575753') : (d.nagad_number || '01820575753');
+    }
+    const helpEl = document.getElementById('pricingHelplineNumber');
+    if (helpEl && d.support_whatsapp) {
+      helpEl.innerText = d.support_whatsapp;
+    }
+
+    // 3. Global Announcement Banner
+    const bar = document.getElementById('globalAnnouncementBar');
+    const txt = document.getElementById('globalAnnouncementText');
+    if (bar && txt) {
+      const msg = (d.announcement_text || '').trim();
+      if (msg) {
+        txt.innerText = msg;
+        bar.classList.remove('hidden');
+      } else {
+        bar.classList.add('hidden');
+      }
+    }
+
+    if (typeof updatePaymentQrDisplay === 'function') updatePaymentQrDisplay();
+  } catch (e) {
+    console.error("Error loading live site config:", e);
+  }
+}
+
+async function loadAdminMasterSettings() {
+  try {
+    const res = await fetch('/api/admin/settings/all', { headers: getActiveAuthHeaders() });
+    if (!res.ok) return;
+    const d = await res.json();
+    if (!d.success) return;
+
+    const setVal = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined) el.value = val; };
+    const setChk = (id, val) => { const el = document.getElementById(id); if (el) el.checked = Boolean(val); };
+
+    const pkgs = d.packages || {};
+    if (pkgs.starter_500) {
+      setVal('admPkgStarterName', pkgs.starter_500.name);
+      setVal('admPkgStarterCredits', pkgs.starter_500.credits);
+      setVal('admPkgStarterPrice', pkgs.starter_500.price_bdt);
+    }
+    if (pkgs.growth_2000) {
+      setVal('admPkgGrowthName', pkgs.growth_2000.name);
+      setVal('admPkgGrowthCredits', pkgs.growth_2000.credits);
+      setVal('admPkgGrowthPrice', pkgs.growth_2000.price_bdt);
+    }
+    if (pkgs.agency_5000) {
+      setVal('admPkgAgencyName', pkgs.agency_5000.name);
+      setVal('admPkgAgencyCredits', pkgs.agency_5000.credits);
+      setVal('admPkgAgencyPrice', pkgs.agency_5000.price_bdt);
+    }
+
+    setVal('admBkashNumber', d.bkash_number || '01820575753');
+    setVal('admNagadNumber', d.nagad_number || '01820575753');
+    setVal('admSupportWhatsapp', d.support_whatsapp || '01820575753');
+
+    setVal('admFreeTrialCredits', d.free_trial_credits ?? 250);
+    setVal('admFreeBatchLimit', d.free_batch_limit ?? 25);
+    setVal('admRefInviterBonus', d.referral_inviter_bonus ?? 100);
+    setVal('admRefFriendBonus', d.referral_friend_bonus ?? 50);
+    setVal('admRefCommPct', d.referral_commission_pct ?? 20);
+
+    setChk('admLockSalesNav', d.lock_sales_nav !== false);
+    setChk('admLockVerifier', d.lock_verifier !== false);
+    setChk('admLockOutreach', d.lock_outreach !== false);
+
+    setVal('admAnnouncementText', d.announcement_text || '');
+    setVal('admNewPasscode', '');
+  } catch (e) {
+    console.error("Error loading admin master settings:", e);
+  }
+}
+
+async function saveAdminMasterSettings() {
+  const getVal = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+  const getNum = (id, fb) => { const n = parseInt(getVal(id), 10); return isNaN(n) ? fb : n; };
+  const getChk = (id) => { const el = document.getElementById(id); return el ? Boolean(el.checked) : true; };
+
+  const payload = {
+    packages: {
+      starter_500: {
+        name: getVal('admPkgStarterName') || 'Starter Plan',
+        credits: getNum('admPkgStarterCredits', 500),
+        price_bdt: getNum('admPkgStarterPrice', 500)
+      },
+      growth_2000: {
+        name: getVal('admPkgGrowthName') || 'Growth Pro',
+        credits: getNum('admPkgGrowthCredits', 2000),
+        price_bdt: getNum('admPkgGrowthPrice', 1800)
+      },
+      agency_5000: {
+        name: getVal('admPkgAgencyName') || 'Agency Pro',
+        credits: getNum('admPkgAgencyCredits', 5000),
+        price_bdt: getNum('admPkgAgencyPrice', 4000)
+      }
+    },
+    bkash_number: getVal('admBkashNumber') || '01820575753',
+    nagad_number: getVal('admNagadNumber') || '01820575753',
+    support_whatsapp: getVal('admSupportWhatsapp') || '01820575753',
+    free_trial_credits: getNum('admFreeTrialCredits', 250),
+    free_batch_limit: getNum('admFreeBatchLimit', 25),
+    referral_inviter_bonus: getNum('admRefInviterBonus', 100),
+    referral_friend_bonus: getNum('admRefFriendBonus', 50),
+    referral_commission_pct: getNum('admRefCommPct', 20),
+    lock_sales_nav: getChk('admLockSalesNav'),
+    lock_verifier: getChk('admLockVerifier'),
+    lock_outreach: getChk('admLockOutreach'),
+    announcement_text: getVal('admAnnouncementText'),
+    new_admin_passcode: getVal('admNewPasscode')
+  };
+
+  const btn = document.getElementById('btnSaveMasterSettings');
+  const origHtml = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Saving All Settings...`;
+  }
+
+  try {
+    const res = await fetch('/api/admin/settings/all', {
+      method: 'POST',
+      headers: getActiveAuthHeaders(),
+      body: JSON.stringify(payload)
+    });
+    const d = await res.json();
+    if (d.success) {
+      showToast(`✅ ${d.message}`, "success");
+      const passEl = document.getElementById('admNewPasscode');
+      if (passEl) passEl.value = '';
+      await loadSiteConfig();
+      await loadAdminMasterSettings();
+    } else {
+      showToast(`Failed: ${d.message || 'Unknown error'}`, "error");
+    }
+  } catch (e) {
+    showToast("Connection error: " + e, "error");
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = origHtml;
+    }
+  }
 }
 
 </script>
