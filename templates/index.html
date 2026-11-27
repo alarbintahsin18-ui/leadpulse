@@ -3516,6 +3516,22 @@
   loadOutreachAccounts();
   loadClientsData();
 
+  // Handle Firebase Redirect Sign-In Result (if popup was blocked)
+  if (typeof isFirebaseReady !== 'undefined' && isFirebaseReady && typeof firebase !== 'undefined') {
+    firebase.auth().getRedirectResult().then(async (result) => {
+      if (result && result.user) {
+        const user = result.user;
+        await sendAuthToBackend({
+          email: user.email,
+          name: user.displayName || user.email.split('@')[0],
+          picture: user.photoURL || '',
+          google_uid: user.uid,
+          email_verified: user.emailVerified
+        });
+      }
+    }).catch((err) => console.log("Redirect auth check:", err));
+  }
+
   if (isAdminParam) {
     setTimeout(() => openAdminLoginModal(), 200);
   } else if (!activeClientId) {
@@ -6848,12 +6864,10 @@ function openSalesNavOutreachLead(idx) {
  // ═════════════════════════════════════════════════
  // AUTHENTICATION MODAL & LOGINS CONTROLLER
  // ═════════════════════════════════════════════════
- function openAuthModal(defaultTab = 'email') {
+ function openAuthModal(defaultTab = 'google') {
  const modal = document.getElementById('authModal');
  if (modal) {
  modal.classList.remove('hidden');
- switchAuthMethod(defaultTab);
- resetEmailAuthStep();
  }
  }
 
@@ -6901,7 +6915,15 @@ function openSalesNavOutreachLead(idx) {
  } catch (err) {
  console.error("Firebase auth error:", err);
  if (err.code === 'auth/popup-closed-by-user') return;
- alert(`Firebase Google Auth Notice:\n${err.message}\n\nPlease verify that your domain is whitelisted in Firebase Console -> Authentication -> Settings -> Authorized domains.`);
+ if (err.code === 'auth/popup-blocked' || err.code === 'auth/cancelled-popup-request') {
+ showToast("Popup blocked by browser — switching to direct Google Redirect...", "info");
+ const provider = new firebase.auth.GoogleAuthProvider();
+ provider.addScope('email');
+ provider.addScope('profile');
+ firebase.auth().signInWithRedirect(provider);
+ return;
+ }
+ showToast(`Google Sign-In Error (${err.code || 'auth'}): ${err.message}`, "error");
  } finally {
  if (btn && orig) btn.innerHTML = orig;
  }
